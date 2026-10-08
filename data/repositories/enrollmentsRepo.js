@@ -17,7 +17,7 @@ function list({ q = '', status = '', session = '', page = 1, perPage = 15 } = {}
 }
 
 const forStudent = (studentId) => db.prepare(`SELECT e.*, cs.starts_at, c.title AS course_title FROM enrollments e JOIN class_sessions cs ON cs.id = e.session_id JOIN courses c ON c.id = cs.course_id WHERE e.student_id = ? ORDER BY cs.starts_at DESC`).all(studentId);
-const byReg = (reg) => db.prepare(`SELECT e.reg_number, e.status, cs.starts_at, cs.location, c.title, c.slug FROM enrollments e JOIN class_sessions cs ON cs.id = e.session_id JOIN courses c ON c.id = cs.course_id WHERE e.reg_number = ?`).get(reg);
+const byReg = (reg) => db.prepare(`SELECT e.reg_number, e.status, e.amount, e.amount_paid, e.payment_status, cs.starts_at, cs.location, c.title, c.slug FROM enrollments e JOIN class_sessions cs ON cs.id = e.session_id JOIN courses c ON c.id = cs.course_id WHERE e.reg_number = ?`).get(reg);
 const sessionsFor = (courseId) => db.prepare(`SELECT s.*, (SELECT COUNT(*) FROM enrollments e WHERE e.session_id = s.id AND e.status IN ('registered','completed')) AS enrolled
   FROM class_sessions s WHERE s.course_id = ? ORDER BY s.starts_at DESC`).all(courseId);
 

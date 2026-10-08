@@ -157,7 +157,8 @@ CREATE TABLE IF NOT EXISTS enrollments (
 CREATE INDEX IF NOT EXISTS idx_enroll_session ON enrollments(session_id, status);
 CREATE TABLE IF NOT EXISTS payments (
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, ref_id INTEGER NOT NULL, amount REAL NOT NULL,
-  method TEXT NOT NULL DEFAULT 'cash', note TEXT, paid_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  method TEXT NOT NULL DEFAULT 'cash', note TEXT, paid_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+  provider_ref TEXT, payment_intent TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_payments_ref ON payments(kind, ref_id);
 CREATE TABLE IF NOT EXISTS expenses (
@@ -185,6 +186,11 @@ CREATE TABLE IF NOT EXISTS inquiries (
   id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, message TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
 );
+CREATE TABLE IF NOT EXISTS demo_checkouts (
+  id TEXT PRIMARY KEY, kind TEXT NOT NULL, ref_id INTEGER NOT NULL, amount_cents INTEGER NOT NULL, lines TEXT NOT NULL, email TEXT,
+  status TEXT NOT NULL DEFAULT 'open', success_url TEXT NOT NULL, cancel_url TEXT NOT NULL, origin TEXT NOT NULL,
+  expires_at INTEGER NOT NULL, payment_intent TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);
 CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS website_content (key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS activity_log (
@@ -192,5 +198,13 @@ CREATE TABLE IF NOT EXISTS activity_log (
   created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
 );
 `);
+
+// Columns added after the first release are added in place, so an existing demo database keeps all its data.
+const addColumn = (table, col, ddl) => {
+  if (!db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+};
+addColumn('payments', 'provider_ref', 'TEXT'); // Stripe checkout-session / refund id: makes webhook handling idempotent
+addColumn('payments', 'payment_intent', 'TEXT'); // Stripe PaymentIntent id: needed to refund a card payment
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS ux_payments_provider ON payments(provider_ref) WHERE provider_ref IS NOT NULL');
 
 module.exports = db;

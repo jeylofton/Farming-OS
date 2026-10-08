@@ -6,6 +6,10 @@ const enrollmentService = require('../services/enrollmentService');
 const v = require('../lib/validate');
 const features = require('../config/features');
 const { notFound, flash } = require('../middleware');
+const stripeService = require('../services/stripeService');
+const orderService = require('../services/orderService');
+const ordersRepo = require('../data/repositories/ordersRepo');
+const paymentService = require('../services/paymentService');
 
 const site = (res, view, data = {}) => res.page(`website/${view}`, { content: contentRepo.all(), ...data }, 'site');
 
@@ -29,12 +33,21 @@ exports.contact = (req, res) => {
   site(res, 'contact', { pageTitle: 'Contact & Visit', faqs, old: res.locals.old || {} });
 };
 
-exports.register = (req, res) => {
+exports.register = async (req, res) => {
   const course = enrollments.courseBySlug(req.params.slug);
   if (!course) return notFound(req, res);
   const sessionId = Number(req.body.session_id);
   if (!course.sessions.some((s) => s.id === sessionId)) throw new v.ValidationError('Please choose one of the sessions listed for this class.');
   const r = enrollmentService.register({ session_id: sessionId, name: req.body.name, email: req.body.email, phone: req.body.phone, notes: req.body.notes, source: 'public' });
+  const owes = db.prepare('SELECT amount FROM enrollments WHERE id = ?').get(r.id).amount > 0;
+  // A paid seat is held for a short time while the student pays at Stripe. If Stripe cannot be reached, release the seat.
+  if (r.status === 'registered' && owes && features.onlinePayments && stripeService.enabled()) {
+    try { return res.redirect(await stripeService.createCheckout('enrollment', r.id, req)); } catch (e) {
+      console.error('Could not start checkout:', e.message);
+      enrollmentService.cancel(r.id);
+      throw new v.ValidationError('Online payment is unavailable right now, so your seat was not reserved. Please try again shortly or contact the farm.');
+    }
+  }
   res.redirect(`/classes/confirmation/${r.reg_number}`);
 };
 
@@ -54,3 +67,39 @@ exports.inquire = (req, res) => {
   flash(req, 'success', 'Thanks! Your message was received. (Demo: no email is sent.)');
   res.redirect('/contact');
 };
+
+// ---- Public produce ordering (requires online payment) ----
+const lotsForSale = () => inventoryRepo.orderable().filter((l) => l.listed);
+
+exports.orderForm = (req, res) => site(res, 'order', { pageTitle: 'Order Produce', lots: lotsForSale(), old: res.locals.old || {}, taxRate: Number(require('../data/repositories/settingsRepo').get('tax_rate')) || 0 });
+
+exports.orderCreate = async (req, res) => {
+  const lots = lotsForSale();
+  const item_lot = [];
+  const item_qty = [];
+  for (const l of lots) {
+    const q = req.body['qty_' + l.id];
+    if (q === undefined || q === '' || Number(q) === 0) continue;
+    item_lot.push(String(l.id));
+    item_qty.push(String(q));
+  }
+  const name = v.required(req.body.name, 'Your name', 100);
+  const email = v.email(req.body.email, 'Email', true);
+  const existing = db.prepare('SELECT id FROM customers WHERE email = ? COLLATE NOCASE AND archived = 0').get(email);
+  const orderId = orderService.create({
+    customer_id: existing ? existing.id : '', new_name: name, new_email: email, new_phone: req.body.phone,
+    fulfillment: 'pickup', requested_date: req.body.requested_date, notes: req.body.notes, item_lot, item_qty, item_price: [],
+  });
+  try { return res.redirect(await stripeService.createCheckout('order', orderId, req)); } catch (e) {
+    console.error('Could not start checkout:', e.message);
+    orderService.setStatus(orderId, 'cancelled'); // stock goes straight back
+    throw new v.ValidationError('Online payment is unavailable right now, so nothing was reserved. Please try again shortly or contact the farm.');
+  }
+};
+
+exports.orderConfirmation = (req, res) => {
+  const o = db.prepare('SELECT id FROM produce_orders WHERE order_number = ?').get(String(req.params.number));
+  if (!o || !stripeService.tokenOk('order', o.id, req.params.token)) return notFound(req, res);
+  site(res, 'order-confirmation', { pageTitle: 'Order received', o: ordersRepo.get(o.id) });
+};
+void paymentService;

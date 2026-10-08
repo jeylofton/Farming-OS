@@ -15,3 +15,8 @@
 <div class="card card-body mt-3"><h2 class="h6">Modules</h2>
   <p class="small text-muted mb-2">Modules are switched in <code>config/features.js</code> (or with <code>FEATURE_*</code> environment variables). Disabled modules stay dormant, not deleted.</p>
   <% Object.entries(features).forEach(([k, on]) => { %><span class="badge text-bg-<%= on ? 'success' : 'secondary' %> me-1 mb-1"><%= k %>: <%= on ? 'on' : 'off' %></span><% }) %></div>
+
+<div class="card card-body mt-3"><h2 class="h6">Online payments (Stripe)</h2>
+  <p class="mb-1">Status: <strong><%= stripeMode %></strong><% if (stripeMode === 'demo') { %> <span class="badge text-bg-warning">simulated checkout, no real money</span><% } else if (stripeMode === 'test') { %> <span class="badge text-bg-info">test cards only, no real money</span><% } else if (stripeMode === 'LIVE') { %> <span class="badge text-bg-danger">real money</span><% } %></p>
+  <% if (stripeMode !== 'demo') { %><p class="mb-1">Webhook secret: <strong><%= stripeWebhook ? 'set' : 'MISSING: payments cannot be confirmed' %></strong></p><% } %>
+  <p class="small text-muted mb-0">Until a Stripe key is set, online payments use the simulated demo checkout. To go real, set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> in the server environment. Webhook URL: <code>/webhooks/stripe</code>. See the README.</p></div>

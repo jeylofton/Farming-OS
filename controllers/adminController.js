@@ -47,7 +47,7 @@ exports.reports = (req, res) => {
   res.page('admin/reports', { pageTitle: 'Expenses & Finances', months, max, yields: reportsRepo.yieldByBatch(), byCrop: reportsRepo.revenueByCrop(), byCategory: reportsRepo.expensesByCategory(), fill: reportsRepo.classFill() });
 };
 
-exports.settings = (req, res) => res.page('admin/settings', { pageTitle: 'Settings', values: res.locals.old || settingsRepo.all() });
+exports.settings = (req, res) => res.page('admin/settings', { pageTitle: 'Settings', values: res.locals.old || settingsRepo.all(), stripeMode: require('../services/stripeService').mode(), stripeWebhook: Boolean(config.stripe.webhookSecret) });
 exports.settingsSave = (req, res) => {
   const b = req.body;
   const data = {

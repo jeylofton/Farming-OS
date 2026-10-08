@@ -10,6 +10,7 @@
         <% [['/', 'Home'], ['/about', 'About'], ['/produce', 'Our Produce'], ['/classes', 'Classes', 'classes'], ['/updates', 'Farm Updates'], ['/contact', 'Contact & Visit']].filter(l => !l[2] || features[l[2]]).forEach(l => { %>
           <li class="nav-item"><a class="nav-link <%= currentUrl.split('?')[0] === l[0] || (l[0] !== '/' && currentUrl.startsWith(l[0])) ? 'active' : '' %>" href="<%= l[0] %>"><%= l[1] %></a></li>
         <% }) %>
+        <% if (features.onlineProduceOrdering && features.onlinePayments) { %><li class="nav-item ms-md-2 my-1 my-md-0"><a class="btn btn-sm btn-primary" href="/order">Order Online</a></li><% } %>
         <li class="nav-item ms-md-2"><a class="btn btn-sm btn-outline-secondary" href="/login">Staff login</a></li>
       </ul>
     </div>
@@ -25,7 +26,7 @@
       <div class="col-md-4"><div><i class="bi bi-telephone me-1"></i><%= business.phone %></div><div class="text-break"><i class="bi bi-envelope me-1"></i><%= business.email %></div></div>
       <div class="col-md-4 small text-muted" style="white-space:pre-line"><%= business.hours_text %></div>
     </div>
-    <div class="small text-muted mt-3">Demo site with fictional farm information. No real payments or emails are processed.</div>
+    <div class="small text-muted mt-3"><%= payMode === 'demo' || !features.onlinePayments ? 'Demo site with fictional farm information. Payments are simulated: no real money is charged and no emails are sent.' : 'Card payments are processed securely by Stripe.' %></div>
   </div>
 </footer>
 <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

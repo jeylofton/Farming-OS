@@ -3,6 +3,10 @@
   <h1 class="h3 mt-2"><%= e.status === 'waitlisted' ? "You're on the waitlist" : 'Registration received' %></h1>
   <p class="mb-1"><strong><%= e.title %></strong></p><p class="text-muted"><%= f.dateTime(e.starts_at) %><%= e.location ? ' · ' + e.location : '' %></p>
   <p>Your registration number is <strong><%= e.reg_number %></strong>. Keep it for your records.</p>
-  <div class="alert alert-info small">This is a demo: no confirmation email was sent and no payment was taken.</div>
+  <% if (features.onlinePayments && e.amount > 0) { %>
+    <% if (e.payment_status === 'paid') { %><div class="alert alert-success small">Payment received: <%= f.money(e.amount_paid) %>. Thank you!</div>
+    <% } else if (e.status === 'waitlisted') { %><div class="alert alert-info small">No payment is needed now. If a seat opens, the farm will contact you about payment.</div>
+    <% } else { %><div class="alert alert-warning small">Payment of <%= f.money(e.amount) %> has not been received yet. Refresh in a minute; if you didn't finish paying, your seat is released after 30 minutes.</div><% } %>
+  <% } else { %><div class="alert alert-info small">This is a demo: no confirmation email was sent and no payment was taken.</div><% } %>
   <a class="btn btn-primary" href="/classes">Back to classes</a>
 </div>

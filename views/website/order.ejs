@@ -1,0 +1,33 @@
+<% const o = old || {}; %>
+<div class="container py-4" style="max-width:900px">
+  <h1 class="h2">Order Produce</h1>
+  <p class="text-muted">Choose what you'd like, then pay securely by card. Your produce is held for you during checkout and you pick it up at the farm.</p>
+  <% if (!lots.length) { %><div class="card card-body text-muted">Nothing is available to order right now. Check back soon.</div><% } else { %>
+  <form method="post" action="/order" id="publicOrder" data-tax="<%= taxRate %>" novalidate>
+    <div class="card mb-3"><div class="table-responsive"><table class="table align-middle mb-0">
+      <thead><tr><th>Produce</th><th class="text-end">Price</th><th class="text-end d-none d-sm-table-cell">Available</th><th style="width:7.5rem">Quantity</th></tr></thead><tbody>
+      <% lots.forEach(l => { %><tr data-price="<%= l.unit_price %>"><td class="break-any"><label for="q<%= l.id %>"><%= l.crop_name %><%= l.variety ? ' – ' + l.variety : '' %></label></td>
+        <td class="text-end text-nowrap"><%= f.money(l.unit_price) %> / <%= l.unit %></td><td class="text-end d-none d-sm-table-cell"><%= f.qty(l.quantity_available) %> <%= l.unit %></td>
+        <td><input class="form-control form-control-sm pq" id="q<%= l.id %>" type="number" name="qty_<%= l.id %>" min="0" max="<%= l.quantity_available %>" step="any" inputmode="decimal" value="<%= o['qty_' + l.id] || '' %>" placeholder="0"></td></tr><% }) %>
+      </tbody></table></div>
+      <div class="card-footer d-flex justify-content-between"><span>Estimated total<%= taxRate ? ' (incl. ' + taxRate + '% tax)' : '' %></span><strong id="pubTotal">$0.00</strong></div></div>
+    <div class="card mb-3"><div class="card-body"><div class="row g-2">
+      <div class="col-md-6"><label class="form-label" for="name">Your name *</label><input class="form-control" id="name" name="name" required maxlength="100" value="<%= o.name || '' %>"></div>
+      <div class="col-md-6"><label class="form-label" for="email">Email *</label><input class="form-control" type="email" id="email" name="email" required value="<%= o.email || '' %>"></div>
+      <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" value="<%= o.phone || '' %>"></div>
+      <div class="col-md-6"><label class="form-label" for="requested_date">Preferred pickup date</label><input class="form-control" type="date" id="requested_date" name="requested_date" min="<%= f.today() %>" value="<%= o.requested_date || '' %>"></div>
+      <div class="col-12"><label class="form-label" for="notes">Notes</label><textarea class="form-control" id="notes" name="notes" rows="2" maxlength="1000"><%= o.notes || '' %></textarea></div>
+    </div></div></div>
+    <button class="btn btn-primary btn-lg">Continue to secure payment</button>
+    <div class="form-text mt-2"><%= payMode === 'demo' ? 'Demo mode: you will see a simulated checkout and no real money is charged.' : "You'll pay on Stripe's secure page; we never see your card number." %> If you don't finish within <%= 30 %> minutes the order is released.</div>
+  </form>
+  <script>
+    (function () {
+      var form = document.getElementById('publicOrder'); var tax = Number(form.dataset.tax) || 0;
+      function calc() { var sub = 0; form.querySelectorAll('tr[data-price]').forEach(function (r) { var q = Number(r.querySelector('.pq').value) || 0; sub += Math.round(q * Number(r.dataset.price) * 100) / 100; });
+        document.getElementById('pubTotal').textContent = '$' + (sub + Math.round(sub * tax) / 100).toFixed(2); }
+      form.addEventListener('input', calc); calc();
+    })();
+  </script>
+  <% } %>
+</div>

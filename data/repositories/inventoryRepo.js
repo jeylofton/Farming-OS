@@ -21,7 +21,7 @@ function get(id) {
 }
 
 // Lots that can go on an order form.
-const orderable = () => db.prepare(`SELECT l.id, l.lot_code, l.quantity_available, l.unit, l.unit_price, c.name AS crop_name, c.variety
+const orderable = () => db.prepare(`SELECT l.id, l.lot_code, l.quantity_available, l.unit, l.unit_price, l.listed, c.name AS crop_name, c.variety
   FROM produce_inventory l JOIN crops c ON c.id = l.crop_id WHERE l.quantity_available > 0 ORDER BY c.name COLLATE NOCASE, l.id`).all();
 
 const summaryByCrop = () => db.prepare(`SELECT c.id, c.name, c.variety, c.photo, c.description, c.sale_price, c.default_unit,

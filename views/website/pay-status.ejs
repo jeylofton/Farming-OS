@@ -1,0 +1,8 @@
+<div class="container py-5 text-center" style="max-width:560px">
+  <i class="bi bi-exclamation-circle text-warning display-4"></i>
+  <h1 class="h3 mt-2"><%= pageTitle %></h1>
+  <% if (typeof message !== 'undefined' && message) { %><p class="text-muted"><%= message %></p><% } else { %>
+  <p class="text-muted">No payment was taken. Your <%= kind === 'enrollment' ? 'seat' : 'order' %> is held for a short time so you can try again.</p><% } %>
+  <% if (retry) { %><form method="post" action="/pay/retry/<%= kind %>/<%= id %>/<%= token %>" class="d-inline"><button class="btn btn-primary">Return to payment</button></form><% } %>
+  <a class="btn btn-outline-secondary" href="<%= kind === 'enrollment' ? '/classes' : '/produce' %>">Back to the site</a>
+</div>

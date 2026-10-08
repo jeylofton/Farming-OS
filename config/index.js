@@ -15,6 +15,9 @@ const config = {
   demoPass: process.env.DEMO_PASS || 'demo1234',
   perPage: 15,
   maxUploadBytes: 3 * 1024 * 1024,
+  // Stripe (optional). Without STRIPE_SECRET_KEY the site runs exactly as before, with manual payment records only.
+  stripe: { secretKey: process.env.STRIPE_SECRET_KEY || '', webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '', currency: 'usd', holdMinutes: 30 },
+  appUrl: (process.env.APP_URL || '').replace(/\/$/, ''),
 };
 
 // A configured path that cannot be created (e.g. the placeholder /home/user/persistent from .env.example) must not

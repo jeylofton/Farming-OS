@@ -8,7 +8,7 @@
     "dev": "node --watch server.js",
     "build": "echo No build step needed for this Express app",
     "reset:demo": "node scripts/reset-demo.js",
-    "test": "node scripts/smoke-test.js"
+    "test": "node scripts/smoke-test.js && node scripts/payments-test.js && node scripts/demo-pay-test.js"
   },
   "engines": {
     "node": ">=18"
@@ -23,6 +23,7 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "multer": "^2.0.2",
-    "node-sqlite3-wasm": "^0.8.60"
+    "node-sqlite3-wasm": "^0.8.60",
+    "stripe": "^23.0.0"
   }
 }

@@ -1,0 +1,20 @@
+<div class="container py-4" style="max-width:560px">
+  <div class="alert alert-warning text-center fw-semibold mb-3"><i class="bi bi-shield-exclamation me-1"></i>DEMO CHECKOUT: no real payment is taken and no card details are collected.</div>
+  <div class="card"><div class="card-body">
+    <h1 class="h4"><%= business.farm_name %></h1>
+    <ul class="list-group list-group-flush mb-3"><% c.lines.forEach(l => { %><li class="list-group-item d-flex justify-content-between px-0"><span class="break-any"><%= l.name %></span><span><%= f.money(l.cents / 100) %></span></li><% }) %>
+      <li class="list-group-item d-flex justify-content-between px-0 fw-bold"><span>Total due</span><span><%= f.money(c.amount_cents / 100) %></span></li></ul>
+    <% if (c.status === 'open') { %>
+      <% if (error) { %><div class="alert alert-danger py-2"><%= error %></div><% } %>
+      <form method="post" action="/demo-pay/<%= c.id %>/pay">
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="card" id="ok" value="ok" checked><label class="form-check-label" for="ok">Demo card <strong>•••• 4242</strong> (payment succeeds)</label></div>
+        <div class="form-check mb-3"><input class="form-check-input" type="radio" name="card" id="no" value="declined"><label class="form-check-label" for="no">Demo card <strong>•••• 0002</strong> (payment is declined)</label></div>
+        <button class="btn btn-primary w-100">Pay <%= f.money(c.amount_cents / 100) %> (demo)</button>
+      </form>
+      <form method="post" action="/demo-pay/<%= c.id %>/cancel" class="mt-2"><button class="btn btn-outline-secondary w-100">Cancel</button></form>
+      <div class="form-text mt-2">Your seat or produce is held for 30 minutes from when you started.</div>
+    <% } else { %>
+      <div class="alert alert-secondary mb-0">This demo checkout is <strong><%= c.status %></strong>.</div>
+    <% } %>
+  </div></div>
+</div>

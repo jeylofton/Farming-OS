@@ -49,6 +49,7 @@ function locals(req, res, next) {
   const sess = req.session || {};
   res.locals.business = settings.all();
   res.locals.features = features;
+  res.locals.payMode = require('../services/stripeService').mode(); // 'demo' | 'test' | 'LIVE' | 'not configured'
   res.locals.f = format;
   res.locals.chip = format.chip;
   // Status chip HTML: label comes from a fixed map or is escaped; the color class is never user input.

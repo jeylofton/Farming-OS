@@ -50,15 +50,47 @@ the owner's changes. Set `DEMO_DB_PATH` and `UPLOAD_PATH` to a persistent folder
 - `data/repositories/` — all SQL. `data/adapters/` — the only place that knows about SQLite.
 - `config/features.js` — feature flags (`FEATURE_LIVESTOCK=true`, etc.). Disabled modules stay dormant, not deleted.
 
+## Online payments: demo checkout now, Stripe later
+
+Classes and produce are paid online through one flow with two interchangeable providers:
+
+- **Demo checkout (default, no env vars needed):** a simulated hosted checkout at `/demo-pay/...`, clearly labelled DEMO.
+  It has no card field: you pick a demo card that succeeds or one that is declined, so no real card number is ever typed.
+  Seat/stock holds, 30-minute expiry, recording, confirmation pages and refunds all run through the same code as Stripe.
+  Ledger rows read "card (DEMO, simulated)". Disable it with `DEMO_PAYMENTS=false`.
+- **Stripe Checkout:** used automatically as soon as `STRIPE_SECRET_KEY` is set (demo checkout then turns off).
+
+### Switching to Stripe
+
+1. In Stripe (start in **test mode**) copy the secret key (`sk_test_...`).
+2. Stripe Dashboard -> Developers -> Webhooks -> add endpoint `https://YOUR-SITE/webhooks/stripe` with events
+   `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`,
+   `checkout.session.async_payment_failed`. Copy its signing secret (`whsec_...`).
+3. Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in Hostinger's Environment variables and restart.
+   Admin -> Settings shows the mode (test / LIVE) and whether the webhook secret is set.
+4. Try it with card `4242 4242 4242 4242`, any future date, any CVC. Switch to live keys only after owner approval.
+
+How it behaves:
+- **Classes:** paid sessions send the student to checkout after registering; the seat is held 30 minutes and released if unpaid.
+  Free classes and waitlist entries never open Stripe.
+- **Produce:** a public `/order` page (pickup only). Stock is reserved during checkout and returned if it expires.
+- **Safe by design:** prices and amounts come from the database; payments are recorded only from signed webhooks (or by
+  re-reading the session from Stripe), idempotently; card numbers never reach this server.
+- **Refunds:** an admin refund (or "Cancel + refund") of a card payment goes back to the card via Stripe; cash/check
+  payments are still refunded manually. Refunds made directly in the Stripe Dashboard are not synced into the ledger yet.
+- Demo payments and refunds are never sent to Stripe: after switching, old demo payments stay in the ledger as DEMO rows.
+  Clear them with `npm run reset:demo` before real use.
+- If two checkout tabs for the same registration are both paid, both are recorded (the record shows overpaid): refund one.
+
 ## Guardrails honored
 
-- Stage 1 is a demo only: no real emails (confirmations are logged as *simulated*), no payment processing (payments are
-  manual ledger entries), demo login only, no Supabase requirement.
+- Stage 1 is a demo only: no real emails (confirmations are logged as *simulated*), demo login only, no Supabase
+  requirement. Payments are manual ledger entries unless Stripe is configured (test mode first, see above).
 - Class capacity, stock levels, dates, non-negative prices and unique registration/order numbers are validated
   **server-side** in transactions; owner-entered text is stored as text and always escaped on output.
 - Photos: JPEG/PNG/WebP, 3 MB, random file names. POSTs from other origins are rejected.
-- Livestock is disabled by default (`/admin/livestock` returns 404 until the flag is on). Online produce ordering,
-  customer/student portal, online payments, CSA boxes and sensors from spec §14 are **not built**.
+- Livestock is disabled by default (`/admin/livestock` returns 404 until the flag is on). Customer/student portal, CSA
+  boxes and sensors from spec §14 are **not built**.
 
 ## Stage 2 swap points (after approval)
 

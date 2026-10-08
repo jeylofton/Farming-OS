@@ -1,6 +1,6 @@
 <div class="container py-4">
   <h1 class="h2">Our Produce</h1>
-  <p class="text-muted">Availability updates as we harvest. Online ordering isn't available yet: visit the farm stand or <a href="/contact">send us a message</a> to reserve produce.</p>
+  <p class="text-muted">Availability updates as we harvest. <% if (features.onlineProduceOrdering && features.onlinePayments) { %><a href="/order">Order online</a> and pay by card, or visit the farm stand.<% } else { %>Online ordering isn't available yet: visit the farm stand or <a href="/contact">send us a message</a> to reserve produce.<% } %></p>
   <% if (!items.length) { %><div class="card card-body text-muted">No produce is listed yet.</div><% } %>
   <div class="row g-3"><% items.forEach(p => { %><div class="col-6 col-md-4 col-lg-3"><%- include('../partials/produce-card', { p }) %></div><% }) %></div>
 </div>

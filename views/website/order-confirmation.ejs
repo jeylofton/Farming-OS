@@ -1,0 +1,10 @@
+<div class="container py-5" style="max-width:640px">
+  <div class="text-center"><i class="bi bi-<%= o.payment_status === 'paid' ? 'check-circle text-success' : 'hourglass-split text-warning' %> display-4"></i>
+  <h1 class="h3 mt-2"><%= o.payment_status === 'paid' ? 'Thank you! Your order is paid' : 'Order received: payment pending' %></h1>
+  <p>Order number <strong><%= o.order_number %></strong>. Pickup at <%= business.address %><%= o.requested_date ? ' on ' + f.date(o.requested_date) : '' %>.</p></div>
+  <% if (o.payment_status !== 'paid') { %><div class="alert alert-warning small">We have not received your payment yet. This can take a minute: refresh this page. If you did not finish paying, the order is released after 30 minutes.</div><% } %>
+  <div class="card"><ul class="list-group list-group-flush"><% o.items.forEach(i => { %><li class="list-group-item d-flex justify-content-between"><span class="break-any"><%= i.description %> <small class="text-muted">× <%= f.qty(i.quantity) %> <%= i.unit %></small></span><span><%= f.money(i.line_total) %></span></li><% }) %>
+    <% if (o.tax > 0) { %><li class="list-group-item d-flex justify-content-between"><span>Tax</span><span><%= f.money(o.tax) %></span></li><% } %>
+    <li class="list-group-item d-flex justify-content-between fw-bold"><span>Total</span><span><%= f.money(o.total) %></span></li></ul></div>
+  <div class="text-center mt-4"><a class="btn btn-primary" href="/produce">Back to produce</a></div>
+</div>
