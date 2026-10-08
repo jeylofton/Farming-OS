@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "build": "echo No build step needed for this Express app",
     "reset:demo": "node scripts/reset-demo.js",
     "test": "node scripts/smoke-test.js"
   },
