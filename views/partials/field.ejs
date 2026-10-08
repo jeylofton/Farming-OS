@@ -1,0 +1,31 @@
+<%# One form control for any registry field. Params: f, record, refs, old, locked %>
+<% const has = old && f.name in old;
+const val = has ? old[f.name] : record[f.name];
+const id = 'f_' + f.name;
+const cls = f.half ? 'col-md-6' : 'col-12';
+const dis = locked ? 'disabled' : ''; %>
+<div class="<%= cls %>">
+<% if (f.type === 'checkbox') {
+  const on = has ? [].concat(old[f.name] || []).includes('1') : !!record[f.name]; %>
+  <div class="form-check form-switch mt-2"><input type="hidden" name="<%= f.name %>" value="0"><input class="form-check-input" type="checkbox" role="switch" id="<%= id %>" name="<%= f.name %>" value="1" <%= on ? 'checked' : '' %>><label class="form-check-label" for="<%= id %>"><%= f.label %></label></div>
+<% } else { %>
+  <label class="form-label" for="<%= id %>"><%= f.label %><%= f.required ? ' *' : '' %></label>
+  <% if (f.type === 'textarea') { %><textarea class="form-control" id="<%= id %>" name="<%= f.name %>" rows="3" maxlength="4000" <%= dis %>><%= val == null ? '' : val %></textarea>
+  <% } else if (f.type === 'select') { %><select class="form-select" id="<%= id %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %> <%= dis %>>
+      <% if (!f.required) { %><option value="">–</option><% } %>
+      <% f.options.forEach(o => { %><option value="<%= o[0] %>" <%= String(val) === String(o[0]) ? 'selected' : '' %>><%= o[1] %></option><% }) %></select>
+  <% } else if (f.type === 'ref') { %><select class="form-select" id="<%= id %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %> <%= dis %>>
+      <option value=""><%= f.required ? 'Choose…' : '–' %></option>
+      <% (refs[f.name] || []).forEach(o => { %><option value="<%= o.id %>" <%= String(val) === String(o.id) ? 'selected' : '' %>><%= o.label %></option><% }) %></select>
+  <% } else if (f.type === 'image') { %>
+      <% if (record[f.name]) { %><div class="mb-2"><img src="<%= upload(record[f.name]) %>" alt="" class="thumb"> <div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="rm_<%= f.name %>" name="remove_<%= f.name %>" value="1"><label class="form-check-label" for="rm_<%= f.name %>">Remove current photo</label></div></div><% } %>
+      <input class="form-control" type="file" id="<%= id %>" name="<%= f.name %>" accept="image/jpeg,image/png,image/webp">
+  <% } else {
+    const type = { number: 'number', integer: 'number', money: 'number', date: 'date', email: 'email', tel: 'tel', datetime: 'datetime-local' }[f.type] || 'text';
+    const step = f.type === 'integer' ? '1' : f.type === 'money' ? '0.01' : f.type === 'number' ? 'any' : null;
+    const shown = f.type === 'datetime' && val ? String(val).replace(' ', 'T').slice(0, 16) : val; %>
+    <input class="form-control" type="<%= type %>" id="<%= id %>" name="<%= f.name %>" value="<%= shown == null ? '' : shown %>" <%= f.required ? 'required' : '' %> <% if (step) { %>step="<%= step %>" <% if (f.type !== 'number' || f.min != null) { %>min="<%= f.min != null ? f.min : 0 %>"<% } %><% } %> <% if (type === 'text' || type === 'email' || type === 'tel') { %>maxlength="200"<% } %> <%= dis %>>
+  <% } %>
+  <% if (f.help) { %><div class="form-text"><%= f.help %></div><% } %>
+<% } %>
+</div>

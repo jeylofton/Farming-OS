@@ -1,0 +1,11 @@
+<%# Public produce card. Param: p (row from inventoryRepo.summaryByCrop) %>
+<div class="card produce-card h-100">
+  <% if (p.photo) { %><img src="<%= upload(p.photo) %>" class="card-img-top produce-img" alt="<%= p.name %>"><% } else { %><div class="produce-img produce-ph"><i class="bi bi-flower1"></i></div><% } %>
+  <div class="card-body">
+    <h3 class="h6 mb-0"><%= p.name %></h3><div class="small text-muted mb-2"><%= p.variety || '' %></div>
+    <% if (p.description) { %><p class="small mb-2 break-any"><%= p.description %></p><% } %>
+    <% if (p.available > 0) { %><span class="badge text-bg-success">In stock: <%= f.qty(p.available) %> <%= p.unit %></span> <strong class="ms-1"><%= f.money(p.price || p.sale_price) %></strong><small class="text-muted"> / <%= p.unit %></small>
+    <% } else if (p.next_harvest) { %><span class="badge text-bg-info">Coming ~<%= f.date(p.next_harvest) %></span>
+    <% } else { %><span class="badge text-bg-secondary">Not available right now</span><% } %>
+  </div>
+</div>

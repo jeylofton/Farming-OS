@@ -1,0 +1,25 @@
+<form class="row g-2 mb-3" method="get" action="/admin/<%= def.path %>">
+  <div class="col-12 col-md"><div class="input-group"><input class="form-control" name="q" value="<%= q %>" placeholder="Search <%= def.plural.toLowerCase() %>" aria-label="Search"><button class="btn btn-primary"><i class="bi bi-search"></i><span class="visually-hidden">Search</span></button></div></div>
+  <% filterDefs.forEach(fl => { %>
+    <div class="col-6 col-md-auto"><select class="form-select" name="<%= fl.name %>" aria-label="<%= fl.label %>" data-autosubmit>
+      <option value="">All <%= fl.label.toLowerCase() %></option>
+      <% fl.options.forEach(o => { %><option value="<%= o[0] %>" <%= String(filters[fl.name]) === String(o[0]) ? 'selected' : '' %>><%= o[1] %></option><% }) %></select></div>
+  <% }) %>
+  <% if (def.archivable) { %><div class="col-6 col-md-auto d-flex align-items-center"><div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="arch" name="archived" value="1" <%= archived ? 'checked' : '' %> data-autosubmit><label class="form-check-label" for="arch">Archived</label></div></div><% } %>
+</form>
+<% if (def.hint) { %><div class="alert alert-light border small"><i class="bi bi-info-circle me-1"></i><%= def.hint %></div><% } %>
+<div class="card">
+  <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead><tr><% def.columns.forEach(c => { %><th class="<%= c.cls || '' %>"><%= c.label %></th><% }) %><th class="text-end">&nbsp;</th></tr></thead>
+    <tbody>
+      <% if (!rows.length) { %><tr><td colspan="<%= def.columns.length + 1 %>" class="text-center text-muted py-5">
+        <i class="bi bi-<%= def.icon %> fs-2 d-block mb-2"></i><%= q || Object.values(filters).some(Boolean) ? 'Nothing matches those filters.' : (archived ? 'No archived records.' : 'No ' + def.plural.toLowerCase() + ' yet.') %>
+        <% if (!archived) { %><div class="mt-2"><a class="btn btn-sm btn-primary" href="/admin/<%= def.path %>/new">Add the first one</a></div><% } %></td></tr><% } %>
+      <% rows.forEach(row => { %><tr class="<%= row.done ? 'text-muted' : '' %>">
+        <% def.columns.forEach(col => { %><%- include('../../partials/cell', { def, col, row }) %><% }) %>
+        <td class="text-end text-nowrap"><a class="btn btn-sm btn-outline-secondary" href="/admin/<%= def.path %>/<%= row.id %>/edit" aria-label="Edit"><i class="bi bi-pencil"></i></a></td></tr><% }) %>
+    </tbody>
+    <% if (def.totalColumn && rows.length) { %><tfoot><tr class="fw-semibold"><td colspan="<%= def.columns.length %>" class="text-end">Total (all <%= total %> shown by this filter)</td><td class="text-end"><%= f.money(sum) %></td></tr></tfoot><% } %>
+  </table></div>
+  <% if (pages > 1 || total > 0) { %><div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2"><small class="text-muted"><%= total %> record<%= total === 1 ? '' : 's' %></small><%- include('../../partials/pagination', { pages, page, query, base: '/admin/' + def.path }) %></div><% } %>
+</div>

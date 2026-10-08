@@ -1,0 +1,13 @@
+<form class="row g-2 mb-3" method="get" action="/admin/orders">
+  <div class="col-12 col-md"><div class="input-group"><input class="form-control" name="q" value="<%= q %>" placeholder="Search order number, customer or phone" aria-label="Search"><button class="btn btn-primary"><i class="bi bi-search"></i><span class="visually-hidden">Search</span></button></div></div>
+  <div class="col-12 col-md-auto"><select class="form-select" name="status" data-autosubmit aria-label="Status"><option value="">All orders</option>
+    <% [['open', 'Open (not fulfilled)'], ['unpaid', 'Unpaid / partial'], ['pending', 'Pending'], ['confirmed', 'Confirmed'], ['ready', 'Ready'], ['fulfilled', 'Fulfilled'], ['cancelled', 'Cancelled']].forEach(o => { %><option value="<%= o[0] %>" <%= status === o[0] ? 'selected' : '' %>><%= o[1] %></option><% }) %></select></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead><tr><th>Order</th><th>Customer</th><th class="d-none d-md-table-cell">Date</th><th>Status</th><th class="d-none d-md-table-cell">Payment</th><th class="text-end">Total</th></tr></thead><tbody>
+  <% if (!rows.length) { %><tr><td colspan="6" class="text-center text-muted py-5"><i class="bi bi-cart3 fs-2 d-block mb-2"></i>No orders found.<div class="mt-2"><a class="btn btn-sm btn-primary" href="/admin/orders/new">Create an order</a></div></td></tr><% } %>
+  <% rows.forEach(o => { %><tr><td><a class="fw-semibold text-decoration-none" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a><br><small class="text-muted d-md-none"><%= f.date(o.order_date) %></small></td>
+    <td class="break-any"><%= o.customer_name %><br><small class="text-muted"><%= o.fulfillment %></small></td><td class="d-none d-md-table-cell"><%= f.date(o.order_date) %></td>
+    <td><%- badge('order', o.status) %></td><td class="d-none d-md-table-cell"><%- badge('payment', o.payment_status) %></td><td class="text-end"><%= f.money(o.total) %></td></tr><% }) %>
+  </tbody></table></div>
+  <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2"><small class="text-muted"><%= total %> order<%= total === 1 ? '' : 's' %></small><%- include('../../partials/pagination', { pages, page, query, base: '/admin/orders' }) %></div></div>

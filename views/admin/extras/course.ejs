@@ -1,0 +1,5 @@
+<% if (row.overview) { %><div class="card mb-3"><div class="card-body pre-line break-any"><%= row.overview %></div></div><% } %>
+<div class="card"><div class="card-header d-flex justify-content-between align-items-center"><span class="fw-semibold">Sessions</span><a class="btn btn-sm btn-outline-primary" href="/admin/classes/new?course_id=<%= row.id %>">Schedule</a></div>
+<% if (!extra.sessions.length) { %><div class="card-body text-muted">No sessions scheduled.</div><% } else { %>
+<div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>When</th><th>Seats</th><th>Status</th></tr></thead><tbody>
+<% extra.sessions.forEach(s => { %><tr><td><a href="/admin/classes/<%= s.id %>"><%= f.dateTime(s.starts_at) %></a></td><td><%= s.enrolled %>/<%= s.capacity %></td><td><%- badge('session', s.status) %></td></tr><% }) %></tbody></table></div><% } %></div>

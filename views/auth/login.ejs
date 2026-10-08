@@ -1,0 +1,18 @@
+<% const area = 'site'; %>
+<%- include('../partials/head', { area }) %>
+<body class="site-body login-body">
+<div class="container py-5" style="max-width:420px">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    <h1 class="h4 mb-1"><%= business.farm_name %></h1>
+    <p class="text-muted">Farm Business OS demo sign-in</p>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <form method="post" action="/login">
+      <div class="mb-3"><label class="form-label" for="u">Username</label><input class="form-control" id="u" name="username" autocomplete="username" required autofocus></div>
+      <div class="mb-3"><label class="form-label" for="p">Password</label><input class="form-control" id="p" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary w-100">Sign in</button>
+    </form>
+    <p class="small text-muted mt-3 mb-0">Demo login only. Credentials are set in the server's environment (DEMO_USER / DEMO_PASS).</p>
+  </div></div>
+  <div class="text-center mt-3"><a href="/">&larr; Back to website</a></div>
+</div>
+</body></html>

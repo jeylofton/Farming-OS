@@ -1,0 +1,46 @@
+<% const tile = (label, value, icon, href, tone) => `<div class="col-6 col-md-4 col-xl-3"><a class="card stat-card h-100 text-decoration-none text-reset" href="${href}"><div class="card-body py-3"><div class="d-flex justify-content-between align-items-start"><div class="small text-muted">${label}</div><i class="bi bi-${icon} text-${tone || 'secondary'}"></i></div><div class="stat-value mt-1">${value}</div></div></a></div>`; %>
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <a class="btn btn-primary" href="/admin/plantings/new"><i class="bi bi-flower3 me-1"></i>New Planting</a>
+  <a class="btn btn-success" href="/admin/harvests/new"><i class="bi bi-basket me-1"></i>Record Harvest</a>
+  <% if (features.classes) { %><a class="btn btn-outline-primary" href="/admin/classes/new"><i class="bi bi-calendar-plus me-1"></i>Add Class</a>
+  <a class="btn btn-outline-primary" href="/admin/enrollments"><i class="bi bi-person-plus me-1"></i>Register Student</a><% } %>
+  <a class="btn btn-outline-secondary" href="/admin/expenses/new"><i class="bi bi-wallet2 me-1"></i>Add Expense</a>
+</div>
+
+<h2 class="h6 text-muted text-uppercase mt-4">On the farm</h2>
+<div class="row g-3 mb-4">
+  <%- tile('Active Plantings', s.activePlantings, 'flower3', '/admin/plantings?stage=growing', 'success') %>
+  <%- tile('Harvests Due This Week', s.harvestsDue, 'basket', '/admin/plantings?stage=harvesting', 'warning') %>
+  <%- tile('Available Produce (lots)', s.availableLots, 'boxes', '/admin/inventory', 'primary') %>
+  <%- tile('Pending Farm Tasks', s.pendingTasks + (s.overdueTasks ? ' <small class="text-danger fs-6">(' + s.overdueTasks + ' overdue)</small>' : ''), 'check2-square', '/admin/tasks', 'secondary') %>
+  <%- tile('Low Supplies', s.lowSupplies, 'box-seam', '/admin/supplies?low=1', s.lowSupplies ? 'danger' : 'secondary') %>
+</div>
+<% if (features.classes) { %>
+<h2 class="h6 text-muted text-uppercase">Classes</h2>
+<div class="row g-3 mb-4">
+  <%- tile('Upcoming Classes', s.upcomingClasses, 'calendar-event', '/admin/classes', 'primary') %>
+  <%- tile('Registrations This Month', s.registrationsMonth, 'journal-check', '/admin/enrollments', 'success') %>
+  <%- tile('Seats Remaining', s.seatsRemaining, 'person-check', '/admin/classes', 'secondary') %>
+</div>
+<% } %>
+<h2 class="h6 text-muted text-uppercase">Money (this month)</h2>
+<div class="row g-3 mb-4">
+  <%- tile('Produce Revenue', f.money(s.produceRevenue), 'cart3', '/admin/orders', 'success') %>
+  <%- tile('Class Revenue', f.money(s.classRevenue), 'mortarboard', '/admin/enrollments', 'success') %>
+  <%- tile('Expenses', f.money(s.expenses), 'wallet2', '/admin/expenses', 'danger') %>
+  <%- tile('Unpaid Balances', f.money(s.unpaid), 'exclamation-circle', '/admin/orders?status=unpaid', s.unpaid > 0 ? 'warning' : 'secondary') %>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Alerts</div>
+    <% if (!alerts.length) { %><div class="card-body text-muted">Nothing needs attention right now.</div><% } else { %>
+    <ul class="list-group list-group-flush"><% alerts.forEach(a => { %><li class="list-group-item"><a class="text-decoration-none text-<%= a.level === 'info' ? 'body' : a.level %>" href="<%= a.href %>"><i class="bi bi-<%= a.icon %> me-2"></i><%= a.text %></a></li><% }) %></ul><% } %></div></div>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-header d-flex justify-content-between"><span class="fw-semibold">Next tasks</span><a href="/admin/tasks">All</a></div>
+    <% if (!tasks.length) { %><div class="card-body text-muted">No open tasks.</div><% } else { %>
+    <ul class="list-group list-group-flush"><% tasks.forEach(t => { const late = t.due_date && t.due_date < f.today(); %><li class="list-group-item d-flex justify-content-between gap-2"><a class="text-break" href="/admin/tasks/<%= t.id %>/edit"><%= t.title %></a><small class="text-nowrap <%= late ? 'text-danger fw-semibold' : 'text-muted' %>"><%= f.date(t.due_date) %></small></li><% }) %></ul><% } %></div></div>
+  <% if (features.classes) { %><div class="col-lg-6"><div class="card h-100"><div class="card-header d-flex justify-content-between"><span class="fw-semibold">Upcoming classes</span><a href="/admin/classes">All</a></div>
+    <% if (!sessions.length) { %><div class="card-body text-muted">No classes scheduled.</div><% } else { %>
+    <ul class="list-group list-group-flush"><% sessions.forEach(c => { %><li class="list-group-item d-flex justify-content-between gap-2"><a href="/admin/classes/<%= c.id %>"><%= c.title %><br><small class="text-muted"><%= f.dateTime(c.starts_at) %></small></a><span class="text-nowrap"><%= c.enrolled %>/<%= c.capacity %> <% if (c.enrolled >= c.capacity) { %><span class="badge text-bg-danger">Full</span><% } %></span></li><% }) %></ul><% } %></div></div><% } %>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Recent activity</div>
+    <ul class="list-group list-group-flush"><% recent.forEach(a => { %><li class="list-group-item small"><strong><%= a.action %></strong> <span class="text-muted break-any"><%= a.detail %></span><br><span class="text-muted"><%= f.dateTime(a.created_at) %></span></li><% }) %></ul></div></div>
+</div>

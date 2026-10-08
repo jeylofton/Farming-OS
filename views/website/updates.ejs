@@ -1,0 +1,3 @@
+<div class="container py-4"><h1 class="h2">Farm Updates</h1>
+  <% if (!updates.length) { %><div class="card card-body text-muted">No updates yet.</div><% } %>
+  <div class="row g-3"><% updates.forEach(u => { %><div class="col-md-6 col-lg-4"><div class="card h-100"><% if (u.photo) { %><img class="card-img-top produce-img" src="<%= upload(u.photo) %>" alt=""><% } %><div class="card-body"><div class="small text-muted"><%= f.date(u.posted_on) %></div><h2 class="h6"><%= u.title %></h2><p class="small mb-0 pre-line break-any"><%= u.body %></p></div></div></div><% }) %></div></div>

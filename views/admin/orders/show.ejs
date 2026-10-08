@@ -1,0 +1,28 @@
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3"><div class="card-body d-flex flex-wrap justify-content-between gap-2">
+      <div><%- badge('order', o.status) %> <%- badge('payment', o.payment_status) %> <span class="text-muted ms-1"><%= o.fulfillment === 'delivery' ? 'Delivery' : 'Pickup' %><%= o.requested_date ? ' on ' + f.date(o.requested_date) : '' %></span></div>
+      <div class="text-muted">Placed <%= f.date(o.order_date) %></div>
+    </div>
+    <div class="card-footer d-flex flex-wrap gap-2 bg-white">
+      <% nextStatuses.forEach(st => { %><form method="post" action="/admin/orders/<%= o.id %>/status" class="m-0" <% if (st === 'cancelled') { %>data-confirm="Cancel this order and return its produce to stock?"<% } %>><button class="btn btn-sm btn-<%= st === 'cancelled' ? 'outline-danger' : 'primary' %>" name="status" value="<%= st %>"><%= st === 'cancelled' ? 'Cancel order' : 'Mark ' + st %></button></form><% }) %>
+      <% if (!nextStatuses.length) { %><span class="text-muted small">This order is <%= o.status %>.</span><% } %>
+    </div></div>
+    <div class="card mb-3"><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end d-none d-sm-table-cell">Price</th><th class="text-end">Total</th></tr></thead><tbody>
+      <% o.items.forEach(i => { %><tr><td class="break-any"><%= i.description %></td><td class="text-end"><%= f.qty(i.quantity) %> <%= i.unit %></td><td class="text-end d-none d-sm-table-cell"><%= f.money(i.unit_price) %></td><td class="text-end"><%= f.money(i.line_total) %></td></tr><% }) %></tbody>
+      <tfoot><tr><td colspan="3" class="text-end">Subtotal</td><td class="text-end"><%= f.money(o.subtotal) %></td></tr><tr><td colspan="3" class="text-end">Tax</td><td class="text-end"><%= f.money(o.tax) %></td></tr>
+      <tr class="fw-bold"><td colspan="3" class="text-end">Total</td><td class="text-end"><%= f.money(o.total) %></td></tr><tr><td colspan="3" class="text-end">Paid</td><td class="text-end"><%= f.money(o.amount_paid) %></td></tr>
+      <tr class="fw-bold"><td colspan="3" class="text-end">Balance due</td><td class="text-end <%= o.total - o.amount_paid > 0.004 ? 'text-danger' : '' %>"><%= f.money(o.total - o.amount_paid) %></td></tr></tfoot></table></div></div>
+    <div class="card"><div class="card-header fw-semibold">Payments</div><div class="card-body">
+      <%- include('../../partials/payment-box', { kind: 'order', id: o.id, methods, back: '/admin/orders/' + o.id }) %></div>
+      <% if (payments.length) { %><ul class="list-group list-group-flush"><% payments.forEach(p => { %><li class="list-group-item d-flex justify-content-between"><span><%= f.dateTime(p.paid_at) %> · <span class="text-capitalize"><%= p.method %></span><%= p.note ? ' · ' + p.note : '' %></span><strong class="<%= p.amount < 0 ? 'text-danger' : '' %>"><%= f.money(p.amount) %></strong></li><% }) %></ul><% } %></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3"><div class="card-header fw-semibold">Customer</div><div class="card-body break-any"><a class="fw-semibold" href="/admin/customers/<%= o.customer_id %>"><%= o.customer_name %></a><br><%= o.customer_phone || '' %><br><%= o.customer_email || '' %><br><small class="text-muted"><%= o.customer_address || '' %></small></div></div>
+    <form method="post" action="/admin/orders/<%= o.id %>" class="card"><div class="card-header fw-semibold">Details</div><div class="card-body">
+      <label class="form-label" for="ful">Fulfillment</label><select class="form-select mb-2" id="ful" name="fulfillment"><option value="pickup" <%= o.fulfillment === 'pickup' ? 'selected' : '' %>>Farm pickup</option><option value="delivery" <%= o.fulfillment === 'delivery' ? 'selected' : '' %>>Delivery</option></select>
+      <label class="form-label" for="rd">Requested date</label><input class="form-control mb-2" type="date" id="rd" name="requested_date" value="<%= o.requested_date || '' %>">
+      <label class="form-label" for="nt">Notes</label><textarea class="form-control mb-2" id="nt" name="notes" rows="3"><%= o.notes || '' %></textarea>
+      <button class="btn btn-sm btn-outline-primary">Save details</button><div class="form-text">Line items can't be edited after creation. Cancel the order and create a new one to change them.</div></div></form>
+  </div>
+</div>

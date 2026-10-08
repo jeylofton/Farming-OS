@@ -1,0 +1,12 @@
+<form class="row g-2 mb-3" method="get" action="/admin/inventory">
+  <div class="col-12 col-md"><div class="input-group"><input class="form-control" name="q" value="<%= q %>" placeholder="Search crop or lot" aria-label="Search"><button class="btn btn-primary"><i class="bi bi-search"></i><span class="visually-hidden">Search</span></button></div></div>
+  <div class="col-12 col-md-auto"><select class="form-select" name="show" data-autosubmit aria-label="Show"><option value="available" <%= show === 'available' ? 'selected' : '' %>>In stock</option><option value="empty" <%= show === 'empty' ? 'selected' : '' %>>Sold out</option><option value="all" <%= show === 'all' ? 'selected' : '' %>>All lots</option></select></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead><tr><th>Lot</th><th>Crop</th><th class="text-end">Available</th><th class="d-none d-md-table-cell">Harvested</th><th class="text-end">Price</th><th class="d-none d-md-table-cell">Public</th></tr></thead><tbody>
+  <% if (!rows.length) { %><tr><td colspan="6" class="text-center text-muted py-5"><i class="bi bi-boxes fs-2 d-block mb-2"></i>No lots to show. Recording a harvest creates one.<div class="mt-2"><a class="btn btn-sm btn-primary" href="/admin/harvests/new">Record harvest</a></div></td></tr><% } %>
+  <% rows.forEach(l => { %><tr class="<%= l.quantity_available === 0 ? 'text-muted' : '' %>"><td><a class="fw-semibold text-decoration-none" href="/admin/inventory/<%= l.id %>"><%= l.lot_code %></a></td>
+    <td><%= l.crop_name %><%= l.variety ? ' – ' + l.variety : '' %> <small class="text-muted">grade <%= l.grade || '-' %></small></td>
+    <td class="text-end"><%= f.qty(l.quantity_available) %> <%= l.unit %><% if (l.harvested_qty) { %><br><small class="text-muted">of <%= f.qty(l.harvested_qty) %></small><% } %></td>
+    <td class="d-none d-md-table-cell"><%= f.date(l.harvested_on) %></td><td class="text-end"><%= f.money(l.unit_price) %></td><td class="d-none d-md-table-cell"><%- badge('flag', l.listed) %></td></tr><% }) %></tbody></table></div>
+  <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2"><small class="text-muted"><%= total %> lot<%= total === 1 ? '' : 's' %></small><%- include('../../partials/pagination', { pages, page, query, base: '/admin/inventory' }) %></div></div>

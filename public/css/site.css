@@ -1,0 +1,16 @@
+:root { --brand: #2f7d32; }
+.site-body { background: #fbfcfa; }
+.brand-text { color: var(--brand); }
+.btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background: var(--brand); border-color: var(--brand); }
+.btn-primary:hover { filter: brightness(0.92); }
+.announcement { background: var(--brand); color: #fff; font-size: .95rem; }
+.hero { padding: 4rem 0; background: linear-gradient(135deg, #eef6ea, #fff); border-bottom: 1px solid #e3eadf; }
+.hero h1 { font-weight: 700; overflow-wrap: anywhere; }
+.site-footer { border-top: 1px solid #e3eadf; background: #fff; }
+.produce-img { height: 140px; object-fit: cover; width: 100%; }
+.produce-ph { display: flex; align-items: center; justify-content: center; background: #eef6ea; color: var(--brand); font-size: 2.5rem; }
+.card { border: 1px solid #e3eadf; border-radius: .6rem; }
+.break-any { overflow-wrap: anywhere; }
+.pre-line { white-space: pre-line; }
+.min-w-0 { min-width: 0; }
+.hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }

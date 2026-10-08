@@ -1,0 +1,9 @@
+<%# Record a payment or refund. Params: kind, id, due, paid, methods, back, disabled %>
+<form method="post" action="/admin/payments/<%= kind %>/<%= id %>" class="row g-2 align-items-end">
+  <input type="hidden" name="back" value="<%= back %>">
+  <div class="col-6 col-md-3"><label class="form-label small mb-0" for="pa_<%= id %>">Amount</label><input class="form-control form-control-sm" id="pa_<%= id %>" type="number" name="amount" step="0.01" min="0.01" required></div>
+  <div class="col-6 col-md-3"><label class="form-label small mb-0" for="pm_<%= id %>">Method</label><select class="form-select form-select-sm" id="pm_<%= id %>" name="method"><% methods.forEach(m => { %><option><%= m %></option><% }) %></select></div>
+  <div class="col-6 col-md-3"><label class="form-label small mb-0" for="pt_<%= id %>">Type</label><select class="form-select form-select-sm" id="pt_<%= id %>" name="type"><option value="payment">Payment</option><option value="refund">Refund</option></select></div>
+  <div class="col-6 col-md-3"><button class="btn btn-sm btn-primary w-100">Record</button></div>
+  <div class="col-12 form-text mt-1">Manual record only. Stage 1 never charges a card.</div>
+</form>

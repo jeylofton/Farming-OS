@@ -1,0 +1,25 @@
+{
+  "name": "farm-business-os",
+  "version": "0.1.0",
+  "description": "Produce Farm & Agricultural Education Business OS - Stage 1 demo (Express + EJS + Bootstrap + SQLite)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "reset:demo": "node scripts/reset-demo.js",
+    "test": "node scripts/smoke-test.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "dotenv": "^18.0.6",
+    "ejs": "^7.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.0.2"
+  }
+}

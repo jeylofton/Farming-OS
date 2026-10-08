@@ -1,0 +1,51 @@
+<% const seatsLeft = Math.max(0, row.capacity - row.enrolled);
+const active = extra.roster.filter(e => e.status === 'registered' || e.status === 'completed');
+const isOpen = row.status === 'scheduled'; %>
+<div class="card mb-3"><div class="card-body">
+  <div class="d-flex flex-wrap justify-content-between gap-2 mb-2"><div><%- badge('session', row.status) %> <strong class="ms-1"><%= row.course_title %></strong></div>
+    <div class="fs-5"><strong><%= row.enrolled %></strong>/<%= row.capacity %> seats <% if (isOpen) { %><span class="badge text-bg-<%= seatsLeft ? 'success' : 'danger' %>"><%= seatsLeft ? seatsLeft + ' left' : 'Full' %></span><% } %> <% if (row.waiting) { %><span class="badge text-bg-warning"><%= row.waiting %> waitlisted</span><% } %></div></div>
+  <div class="progress mb-3" style="height:.6rem"><div class="progress-bar bg-success" style="width:<%= row.capacity ? Math.min(100, row.enrolled / row.capacity * 100) : 0 %>%"></div></div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-sm btn-outline-secondary" href="/classes/<%= row.course_slug %>" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Public page</a>
+    <% if (isOpen) { %>
+    <form method="post" action="/admin/classes/<%= row.id %>/complete" class="m-0" data-confirm="Mark this class complete? Registered students become Completed."><button class="btn btn-sm btn-success">Complete class</button></form>
+    <form method="post" action="/admin/classes/<%= row.id %>/cancel" class="m-0" data-confirm="Cancel this class and all its registrations?"><button class="btn btn-sm btn-outline-danger">Cancel class</button></form>
+    <% } %>
+  </div>
+</div></div>
+
+<% if (isOpen) { %>
+<div class="card mb-3"><div class="card-header fw-semibold">Register a student</div><div class="card-body">
+  <form method="post" action="/admin/classes/<%= row.id %>/enroll" class="row g-2">
+    <div class="col-12"><label class="form-label small mb-0" for="st">Existing student</label>
+      <select class="form-select" id="st" name="student_id"><option value="">– or enter a new student below –</option><% extra.students.forEach(s => { %><option value="<%= s.id %>"><%= s.label %></option><% }) %></select></div>
+    <div class="col-md-4"><input class="form-control" name="name" placeholder="New student name" aria-label="New student name"></div>
+    <div class="col-md-4"><input class="form-control" type="email" name="email" placeholder="Email" aria-label="Email"></div>
+    <div class="col-md-4"><input class="form-control" name="phone" placeholder="Phone" aria-label="Phone"></div>
+    <div class="col-12 d-flex align-items-center gap-2"><button class="btn btn-primary">Register</button><small class="text-muted"><%= seatsLeft ? seatsLeft + ' seat(s) left.' : (row.waitlist ? 'Class is full: the student will join the waitlist.' : 'Class is full and has no waitlist.') %> Confirmation email is simulated.</small></div>
+  </form></div></div>
+<% } %>
+
+<div class="card"><div class="card-header fw-semibold">Roster</div>
+<% if (!extra.roster.length) { %><div class="card-body text-muted">No one has registered yet.</div><% } else { %>
+<ul class="list-group list-group-flush">
+<% extra.roster.forEach(e => { %><li class="list-group-item <%= e.status === 'cancelled' ? 'text-muted' : '' %>">
+  <div class="d-flex flex-wrap justify-content-between gap-2">
+    <div class="min-w-0"><a class="fw-semibold" href="/admin/students/<%= e.student_id %>"><%= e.student_name %></a> <small class="text-muted"><%= e.reg_number %></small><br><small class="text-muted break-any"><%= e.student_email || '' %> <%= e.student_phone || '' %></small></div>
+    <div class="text-end"><%- badge('enrollment', e.status) %> <%- badge('payment', e.payment_status) %><br><small class="text-muted"><%= f.money(e.amount_paid) %> of <%= f.money(e.amount) %></small></div>
+  </div>
+  <% if (e.status !== 'cancelled') { %><div class="d-flex flex-wrap gap-2 mt-2 align-items-center">
+    <% if (e.status !== 'waitlisted') { %><form method="post" action="/admin/enrollments/<%= e.id %>/attendance" class="m-0 d-flex gap-1"><input type="hidden" name="back" value="/admin/classes/<%= row.id %>">
+      <button class="btn btn-sm btn-<%= e.attendance === 'present' ? 'success' : 'outline-success' %>" name="attendance" value="<%= e.attendance === 'present' ? '' : 'present' %>">Present</button>
+      <button class="btn btn-sm btn-<%= e.attendance === 'absent' ? 'danger' : 'outline-danger' %>" name="attendance" value="<%= e.attendance === 'absent' ? '' : 'absent' %>">Absent</button></form><% } %>
+    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#e<%= e.id %>">Payment / notes</button>
+    <% if (e.status !== 'completed') { %><form method="post" action="/admin/enrollments/<%= e.id %>/cancel" class="m-0 d-flex gap-1" data-confirm="Cancel this registration?"><input type="hidden" name="back" value="/admin/classes/<%= row.id %>"><% if (e.amount_paid > 0) { %><button class="btn btn-sm btn-outline-danger" name="refund" value="1">Cancel + refund</button><% } %><button class="btn btn-sm btn-outline-danger" name="refund" value="0">Cancel</button></form><% } %>
+  </div>
+  <div class="collapse mt-2" id="e<%= e.id %>"><div class="border rounded p-2 bg-light">
+    <%- include('../../partials/payment-box', { kind: 'enrollment', id: e.id, methods: extra.paymentMethods, back: '/admin/classes/' + row.id }) %>
+    <form method="post" action="/admin/enrollments/<%= e.id %>/feedback" class="mt-3"><input type="hidden" name="back" value="/admin/classes/<%= row.id %>">
+      <label class="form-label small mb-0" for="fb<%= e.id %>">Feedback / follow-up</label><textarea class="form-control form-control-sm" id="fb<%= e.id %>" name="feedback" rows="2"><%= e.feedback || '' %></textarea>
+      <label class="form-label small mb-0 mt-2" for="nt<%= e.id %>">Notes</label><input class="form-control form-control-sm" id="nt<%= e.id %>" name="notes" value="<%= e.notes || '' %>">
+      <button class="btn btn-sm btn-outline-primary mt-2">Save notes</button></form>
+  </div></div><% } %>
+</li><% }) %></ul><% } %></div>

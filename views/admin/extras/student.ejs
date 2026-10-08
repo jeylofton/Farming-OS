@@ -1,0 +1,4 @@
+<div class="card"><div class="card-header fw-semibold">Learner history</div>
+<% if (!extra.history.length) { %><div class="card-body text-muted">Not registered for any class yet.</div><% } else { %>
+<div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Class</th><th>Date</th><th>Status</th><th>Attendance</th></tr></thead><tbody>
+<% extra.history.forEach(e => { %><tr><td><%= e.course_title %> <small class="text-muted"><%= e.reg_number %></small></td><td><%= f.date(e.starts_at) %></td><td><%- badge('enrollment', e.status) %></td><td><%- e.attendance ? badge('attendance', e.attendance) : '-' %></td></tr><% }) %></tbody></table></div><% } %></div>

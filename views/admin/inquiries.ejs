@@ -1,0 +1,8 @@
+<div class="btn-group mb-3"><a class="btn btn-outline-secondary <%= !status ? 'active' : '' %>" href="/admin/inquiries">All</a><a class="btn btn-outline-secondary <%= status === 'new' ? 'active' : '' %>" href="/admin/inquiries?status=new">New</a><a class="btn btn-outline-secondary <%= status === 'handled' ? 'active' : '' %>" href="/admin/inquiries?status=handled">Handled</a></div>
+<% if (!rows.length) { %><div class="card card-body text-center text-muted py-5"><i class="bi bi-envelope fs-2"></i>No inquiries.</div><% } %>
+<% rows.forEach(r => { %><div class="card mb-2"><div class="card-body">
+  <div class="d-flex flex-wrap justify-content-between gap-2"><div class="min-w-0"><strong class="break-any"><%= r.name %></strong> <%- badge('inquiry', r.status) %><br><small class="text-muted break-any"><%= r.email || '' %> <%= r.phone || '' %> · <%= f.dateTime(r.created_at) %></small></div>
+    <div class="d-flex gap-1"><form method="post" action="/admin/inquiries/<%= r.id %>/status" class="m-0"><button class="btn btn-sm btn-outline-secondary" name="status" value="<%= r.status === 'new' ? 'handled' : 'new' %>"><%= r.status === 'new' ? 'Mark handled' : 'Reopen' %></button></form>
+    <form method="post" action="/admin/inquiries/<%= r.id %>/delete" class="m-0" data-confirm="Delete this inquiry?"><button class="btn btn-sm btn-outline-danger" aria-label="Delete"><i class="bi bi-trash"></i></button></form></div></div>
+  <p class="mb-0 mt-2 pre-line break-any"><%= r.message %></p></div></div><% }) %>
+<%- include('../partials/pagination', { pages, page, query, base: '/admin/inquiries' }) %>

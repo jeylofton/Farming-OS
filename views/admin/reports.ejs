@@ -1,0 +1,23 @@
+<div class="row g-3 mb-3">
+  <div class="col-lg-7"><div class="card h-100"><div class="card-header fw-semibold">Revenue vs. expenses (last 6 months)</div><div class="card-body">
+    <% months.forEach(m => { const rev = m.produce + m.classes; %>
+      <div class="mb-3"><div class="d-flex justify-content-between small"><strong><%= m.ym %></strong><span class="<%= m.profit < 0 ? 'text-danger' : 'text-success' %>">Profit <%= f.money(m.profit) %></span></div>
+        <div class="d-flex align-items-center gap-2"><span class="bar-label">Revenue</span><div class="flex-grow-1"><div class="bar bar-rev" style="width:<%= Math.max(1, rev / max * 100) %>%"></div></div><span class="small bar-val"><%= f.money(rev) %></span></div>
+        <div class="d-flex align-items-center gap-2"><span class="bar-label">Expenses</span><div class="flex-grow-1"><div class="bar bar-exp" style="width:<%= Math.max(1, m.expenses / max * 100) %>%"></div></div><span class="small bar-val"><%= f.money(m.expenses) %></span></div>
+        <div class="small text-muted">Produce <%= f.money(m.produce) %> · Classes <%= f.money(m.classes) %></div></div>
+    <% }) %>
+    <div class="form-text">Revenue is cash recorded (net of refunds) in each month. It does not include unpaid balances.</div>
+  </div></div></div>
+  <div class="col-lg-5"><div class="card h-100"><div class="card-header fw-semibold">Expenses by category</div>
+    <% if (!byCategory.length) { %><div class="card-body text-muted">No expenses yet.</div><% } else { %><ul class="list-group list-group-flush"><% byCategory.forEach(c => { %><li class="list-group-item d-flex justify-content-between"><span><%= c.category %></span><strong><%= f.money(c.total) %></strong></li><% }) %></ul><% } %></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Yield: expected vs. actual</div>
+    <% if (!yields.length) { %><div class="card-body text-muted">No yield data yet.</div><% } else { %><div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Batch</th><th>Crop</th><th class="text-end">Actual / expected</th></tr></thead><tbody>
+    <% yields.forEach(y => { %><tr><td><a href="/admin/plantings/<%= y.id %>"><%= y.batch_code %></a></td><td><%= y.crop_name %></td><td class="text-end"><%= f.qty(y.actual) %> / <%= y.expected_yield ? f.qty(y.expected_yield) : '?' %> <small class="text-muted"><%= y.yield_unit %></small></td></tr><% }) %></tbody></table></div><% } %></div></div>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-header fw-semibold">Top produce by sales</div>
+    <% if (!byCrop.length) { %><div class="card-body text-muted">No sales yet.</div><% } else { %><ul class="list-group list-group-flush"><% byCrop.forEach(c => { %><li class="list-group-item d-flex justify-content-between"><span><%= c.description %> <small class="text-muted">(<%= f.qty(c.qty) %> sold)</small></span><strong><%= f.money(c.revenue) %></strong></li><% }) %></ul><% } %></div></div>
+  <% if (features.classes) { %><div class="col-12"><div class="card"><div class="card-header fw-semibold">Class fill & attendance</div>
+    <div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Class</th><th>Date</th><th>Seats</th><th>Fill</th><th class="text-end">Attended</th></tr></thead><tbody>
+    <% fill.forEach(c => { %><tr><td><a href="/admin/classes/<%= c.id %>"><%= c.title %></a></td><td><%= f.date(c.starts_at) %></td><td><%= c.enrolled %>/<%= c.capacity %></td><td style="min-width:120px"><div class="progress" style="height:.5rem"><div class="progress-bar bg-success" style="width:<%= c.capacity ? Math.min(100, c.enrolled / c.capacity * 100) : 0 %>%"></div></div></td><td class="text-end"><%= c.status === 'completed' ? c.present + '/' + c.enrolled : '-' %></td></tr><% }) %></tbody></table></div></div></div><% } %>
+</div>

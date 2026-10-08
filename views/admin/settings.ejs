@@ -1,0 +1,17 @@
+<form method="post" action="/admin/settings" class="card card-body form-card">
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label" for="farm_name">Farm name *</label><input class="form-control" id="farm_name" name="farm_name" value="<%= values.farm_name %>" required maxlength="80"></div>
+    <div class="col-md-6"><label class="form-label" for="tagline">Tagline</label><input class="form-control" id="tagline" name="tagline" value="<%= values.tagline %>" maxlength="160"></div>
+    <div class="col-md-6"><label class="form-label" for="address">Address</label><input class="form-control" id="address" name="address" value="<%= values.address %>"></div>
+    <div class="col-md-3"><label class="form-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" value="<%= values.phone %>"></div>
+    <div class="col-md-3"><label class="form-label" for="email">Email</label><input class="form-control" type="email" id="email" name="email" value="<%= values.email %>"></div>
+    <div class="col-12"><label class="form-label" for="hours_text">Hours (one line per entry)</label><textarea class="form-control" id="hours_text" name="hours_text" rows="3"><%= values.hours_text %></textarea></div>
+    <div class="col-md-4"><label class="form-label" for="growing_zone">Growing zone</label><input class="form-control" id="growing_zone" name="growing_zone" value="<%= values.growing_zone %>"></div>
+    <div class="col-md-4"><label class="form-label" for="tax_rate">Sales tax on produce orders (%)</label><input class="form-control" type="number" step="0.01" min="0" max="100" id="tax_rate" name="tax_rate" value="<%= values.tax_rate %>"></div>
+    <div class="col-md-4"><label class="form-label" for="brand_color">Brand color</label><input class="form-control form-control-color w-100" type="color" id="brand_color" name="brand_color" value="<%= values.brand_color %>"></div>
+    <div class="col-12"><button class="btn btn-primary">Save settings</button></div>
+  </div>
+</form>
+<div class="card card-body mt-3"><h2 class="h6">Modules</h2>
+  <p class="small text-muted mb-2">Modules are switched in <code>config/features.js</code> (or with <code>FEATURE_*</code> environment variables). Disabled modules stay dormant, not deleted.</p>
+  <% Object.entries(features).forEach(([k, on]) => { %><span class="badge text-bg-<%= on ? 'success' : 'secondary' %> me-1 mb-1"><%= k %>: <%= on ? 'on' : 'off' %></span><% }) %></div>

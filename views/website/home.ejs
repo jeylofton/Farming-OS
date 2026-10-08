@@ -1,0 +1,17 @@
+<section class="hero"><div class="container">
+  <h1 class="display-5"><%= content.home_headline %></h1>
+  <p class="lead text-break"><%= content.home_intro %></p>
+  <div class="d-flex flex-wrap gap-2"><a class="btn btn-primary btn-lg" href="/produce">See what's fresh</a><% if (features.classes) { %><a class="btn btn-outline-secondary btn-lg" href="/classes">Join a class</a><% } %></div>
+</div></section>
+<div class="container">
+  <section class="mt-5"><div class="d-flex justify-content-between align-items-end mb-3"><h2 class="h4 mb-0">Fresh this week</h2><a href="/produce">All produce</a></div>
+    <% if (!produce.length) { %><div class="card card-body text-muted">Nothing is in stock right now. Check back soon, or see what's <a href="/produce">coming up</a>.</div><% } %>
+    <div class="row g-3"><% produce.forEach(p => { %><div class="col-6 col-lg-3"><%- include('../partials/produce-card', { p }) %></div><% }) %></div></section>
+  <% if (features.classes) { %><section class="mt-5"><div class="d-flex justify-content-between align-items-end mb-3"><h2 class="h4 mb-0">Upcoming classes</h2><a href="/classes">All classes</a></div>
+    <% if (!classes.length) { %><div class="card card-body text-muted">New classes will be announced soon.</div><% } %>
+    <div class="row g-3"><% classes.forEach(c => { const left = c.capacity - c.enrolled; %><div class="col-md-4"><div class="card h-100"><div class="card-body">
+      <h3 class="h6"><a class="text-decoration-none" href="/classes/<%= c.slug %>"><%= c.title %></a></h3><div class="text-muted small"><i class="bi bi-calendar-event me-1"></i><%= f.dateTime(c.starts_at) %></div>
+      <div class="mt-2"><%= c.price > 0 ? f.money(c.price) : 'Free' %> · <% if (left > 0) { %><span class="text-success"><%= left %> seat<%= left === 1 ? '' : 's' %> left</span><% } else { %><span class="text-danger">Full<%= c.waitlist ? ' (waitlist open)' : '' %></span><% } %></div></div></div></div><% }) %></div></section><% } %>
+  <% if (updates.length) { %><section class="mt-5"><div class="d-flex justify-content-between align-items-end mb-3"><h2 class="h4 mb-0">Farm updates</h2><a href="/updates">All updates</a></div>
+    <div class="row g-3"><% updates.forEach(u => { %><div class="col-md-4"><div class="card h-100"><% if (u.photo) { %><img class="card-img-top produce-img" src="<%= upload(u.photo) %>" alt=""><% } %><div class="card-body"><div class="small text-muted"><%= f.date(u.posted_on) %></div><h3 class="h6"><%= u.title %></h3><p class="small mb-0 break-any"><%= u.body %></p></div></div></div><% }) %></div></section><% } %>
+</div>

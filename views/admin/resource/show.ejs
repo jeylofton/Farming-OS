@@ -1,0 +1,23 @@
+<% const display = (fld) => {
+  const v = row[fld.name];
+  if (fld.type === 'ref') return row[fld.labelAs] || '-';
+  if (fld.type === 'select') { const o = fld.options.find(x => String(x[0]) === String(v)); return o ? o[1] : (v || '-'); }
+  if (fld.type === 'date') return f.date(v);
+  if (fld.type === 'datetime') return f.dateTime(v);
+  if (fld.type === 'money') return v == null ? '-' : f.money(v);
+  if (fld.type === 'checkbox') return v ? 'Yes' : 'No';
+  return v == null || v === '' ? '-' : v;
+}; %>
+<div class="row g-3">
+  <div class="col-lg-5"><div class="card h-100"><div class="card-body">
+    <% const img = def.fields.find(x => x.type === 'image' && row[x.name]); if (img) { %><img src="<%= upload(row[img.name]) %>" alt="" class="show-photo mb-3"><% } %>
+    <dl class="row mb-0 detail-list">
+      <% def.fields.filter(x => !x.hidden && x.type !== 'image').forEach(fld => { %>
+        <dt class="col-5"><%= fld.label %></dt><dd class="col-7 <%= fld.type === 'textarea' ? 'pre-line' : '' %> break-any"><%= display(fld) %></dd>
+      <% }) %>
+      <% if (def.key === 'plantings') { %><dt class="col-5">Actual yield</dt><dd class="col-7"><%= f.qty(row.actual_yield) %> <%= row.yield_unit %></dd><% } %>
+    </dl>
+    <% if (row.archived) { %><div class="alert alert-secondary mt-3 mb-0 py-2">This record is archived.</div><% } %>
+  </div></div></div>
+  <div class="col-lg-7"><%- include('../extras/' + extrasView, { def, row, extra }) %></div>
+</div>

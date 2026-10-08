@@ -1,0 +1,34 @@
+<div class="container py-4">
+  <a href="/classes" class="small">&larr; All classes</a>
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <h1 class="h2"><%= course.title %></h1>
+      <p><span class="badge text-bg-light border"><%= course.difficulty %></span> <%= course.duration_hours ? course.duration_hours + ' hours' : '' %> · <strong><%= course.default_price > 0 ? f.money(course.default_price) : 'Free' %></strong><%= course.instructor ? ' · with ' + course.instructor : '' %></p>
+      <p class="pre-line break-any"><%= course.overview %></p>
+      <% if (course.outcomes) { %><h2 class="h6">You will learn</h2><ul><% course.outcomes.split('\n').filter(Boolean).forEach(o => { %><li><%= o %></li><% }) %></ul><% } %>
+      <% if (course.materials) { %><h2 class="h6">Materials</h2><p class="pre-line break-any"><%= course.materials %></p><% } %>
+    </div>
+    <div class="col-lg-6">
+      <h2 class="h5">Upcoming sessions</h2>
+      <% if (!course.sessions.length) { %><div class="card card-body text-muted">No upcoming sessions are scheduled. <a href="/contact">Ask us</a> about the next date.</div><% } %>
+      <% course.sessions.forEach(s => { const left = s.capacity - s.enrolled; const closed = s.deadline && s.deadline < f.today(); const open = features.publicClassRegistration && !closed && (left > 0 || s.waitlist); %>
+      <div class="card mb-3"><div class="card-body">
+        <div class="d-flex justify-content-between flex-wrap gap-1"><strong><%= f.dateTime(s.starts_at) %></strong><span><%= s.price > 0 ? f.money(s.price) : 'Free' %></span></div>
+        <div class="small text-muted"><%= s.location || '' %></div>
+        <div class="my-2"><% if (left > 0) { %><span class="badge text-bg-success"><%= left %> seat<%= left === 1 ? '' : 's' %> left</span><% } else { %><span class="badge text-bg-danger">Full</span><% if (s.waitlist) { %> <span class="small text-muted">Join the waitlist and we'll contact you if a seat opens.</span><% } %><% } %>
+          <% if (s.deadline) { %><span class="small text-muted ms-1">Register by <%= f.date(s.deadline) %></span><% } %></div>
+        <% if (s.cancel_policy) { %><div class="small text-muted mb-2 break-any"><%= s.cancel_policy %></div><% } %>
+        <% if (open) { %>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#reg<%= s.id %>"><%= left > 0 ? 'Register' : 'Join waitlist' %></button>
+        <div class="collapse mt-3 <%= old.session_id == s.id ? 'show' : '' %>" id="reg<%= s.id %>"><form method="post" action="/classes/<%= course.slug %>/register" class="row g-2">
+          <input type="hidden" name="session_id" value="<%= s.id %>">
+          <div class="col-12"><label class="form-label small mb-0" for="n<%= s.id %>">Your name *</label><input class="form-control" id="n<%= s.id %>" name="name" required maxlength="100" value="<%= old.session_id == s.id ? (old.name || '') : '' %>"></div>
+          <div class="col-md-6"><label class="form-label small mb-0" for="e<%= s.id %>">Email *</label><input class="form-control" type="email" id="e<%= s.id %>" name="email" required value="<%= old.session_id == s.id ? (old.email || '') : '' %>"></div>
+          <div class="col-md-6"><label class="form-label small mb-0" for="p<%= s.id %>">Phone</label><input class="form-control" id="p<%= s.id %>" name="phone" value="<%= old.session_id == s.id ? (old.phone || '') : '' %>"></div>
+          <div class="col-12"><button class="btn btn-primary"><%= left > 0 ? 'Reserve my seat' : 'Join waitlist' %></button><div class="form-text">Demo site: no payment is taken and no email is sent. The farm confirms payment details separately.</div></div>
+        </form></div>
+        <% } else { %><span class="text-muted small"><%= closed ? 'Registration is closed for this session.' : 'Registration is not available online.' %></span><% } %>
+      </div></div><% }) %>
+    </div>
+  </div>
+</div>

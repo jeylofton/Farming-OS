@@ -1,0 +1,74 @@
+<%
+const area = 'admin';
+const nav = [
+  ['', [['/admin', 'speedometer2', 'Overview', (p) => p === '/']]],
+  ['Farm', [
+    ['/admin/plantings', 'flower3', 'Crops & Plantings', (p) => p.startsWith('/plantings')],
+    ['/admin/crops', 'flower1', 'Crop Catalog', (p) => p.startsWith('/crops')],
+    ['/admin/plots', 'grid-3x3-gap', 'Fields / Beds / Greenhouses', (p) => p.startsWith('/plots')],
+    ['/admin/calendar', 'calendar3', 'Farm Calendar', (p) => p.startsWith('/calendar')],
+    ['/admin/tasks', 'check2-square', 'Tasks', (p) => p.startsWith('/tasks')],
+    ['/admin/harvests', 'basket', 'Harvest Log', (p) => p.startsWith('/harvests')],
+    ['/admin/inventory', 'boxes', 'Produce Inventory', (p) => p.startsWith('/inventory')],
+  ]],
+  ['Sales', [
+    ['/admin/orders', 'cart3', 'Orders & Sales', (p) => p.startsWith('/orders'), 'produceOrders'],
+    ['/admin/customers', 'people', 'Customers', (p) => p.startsWith('/customers'), 'produceOrders'],
+  ]],
+  ['Education', [
+    ['/admin/classes', 'calendar-event', 'Classes & Workshops', (p) => p.startsWith('/classes'), 'classes'],
+    ['/admin/courses', 'mortarboard', 'Course Catalog', (p) => p.startsWith('/courses'), 'classes'],
+    ['/admin/enrollments', 'journal-check', 'Registrations', (p) => p.startsWith('/enrollments'), 'classes'],
+    ['/admin/students', 'person-lines-fill', 'Students', (p) => p.startsWith('/students'), 'classes'],
+  ]],
+  ['Operations', [
+    ['/admin/supplies', 'box-seam', 'Supplies', (p) => p.startsWith('/supplies')],
+    ['/admin/equipment', 'tools', 'Equipment', (p) => p.startsWith('/equipment')],
+    ['/admin/expenses', 'wallet2', 'Expenses', (p) => p.startsWith('/expenses')],
+    ['/admin/reports', 'bar-chart-line', 'Finances & Reports', (p) => p.startsWith('/reports')],
+    ['/admin/staff', 'person-badge', 'Staff', (p) => p.startsWith('/staff')],
+    ['/admin/livestock', 'piggy-bank', 'Livestock', (p) => p.startsWith('/livestock'), 'livestock'],
+  ]],
+  ['Website', [
+    ['/admin/content', 'globe2', 'Website Content', (p) => p.startsWith('/content')],
+    ['/admin/updates', 'images', 'Updates & Gallery', (p) => p.startsWith('/updates')],
+    ['/admin/inquiries', 'envelope', 'Inquiries', (p) => p.startsWith('/inquiries')],
+    ['/admin/settings', 'gear', 'Settings', (p) => p.startsWith('/settings')],
+  ]],
+]; %>
+<%- include('../partials/head', { area }) %>
+<body class="admin-body">
+<nav class="navbar navbar-dark bg-dark sticky-top admin-topbar">
+  <div class="container-fluid flex-nowrap">
+    <button class="btn btn-outline-light btn-sm d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-label="Menu"><i class="bi bi-list"></i></button>
+    <a class="navbar-brand me-auto text-truncate min-w-0" href="/admin"><i class="bi bi-flower2 me-1"></i><%= business.farm_name %></a>
+    <a class="btn btn-sm btn-outline-light me-2 d-none d-sm-inline" href="/" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> View site</a>
+    <form method="post" action="/logout" class="m-0"><button class="btn btn-sm btn-light text-nowrap" aria-label="Sign out"><i class="bi bi-box-arrow-right d-sm-none"></i><span class="d-none d-sm-inline">Sign out</span></button></form>
+  </div>
+</nav>
+<div class="admin-shell">
+  <div class="offcanvas-lg offcanvas-start admin-sidebar" tabindex="-1" id="sidebar">
+    <div class="offcanvas-header d-lg-none"><h5 class="offcanvas-title">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button></div>
+    <div class="offcanvas-body p-0"><div class="w-100 pb-3">
+      <% nav.forEach(group => { const items = group[1].filter(n => !n[4] || features[n[4]]); if (!items.length) return; %>
+        <% if (group[0]) { %><div class="nav-heading"><%= group[0] %></div><% } %>
+        <div class="list-group list-group-flush">
+        <% items.forEach(n => { %><a href="<%= n[0] %>" class="list-group-item list-group-item-action <%= n[3](path) ? 'active' : '' %>"><i class="bi bi-<%= n[1] %> me-2"></i><%= n[2] %></a><% }) %>
+        </div>
+      <% }) %>
+    </div></div>
+  </div>
+  <main class="admin-main">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <h1 class="h3 mb-0 text-break"><%= pageTitle %></h1>
+      <div class="d-flex flex-wrap gap-2"><% actions.forEach(a => { %><a class="btn btn-<%= a.cls || 'primary' %>" href="<%= a.href %>"><% if (a.icon) { %><i class="bi bi-<%= a.icon %> me-1"></i><% } %><%= a.label %></a><% }) %></div>
+    </div>
+    <%- include('../partials/flash') %>
+    <%- body %>
+  </main>
+</div>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/site.js"></script>
+<% scripts.forEach(s => { %><script src="/js/<%= s %>.js"></script><% }) %>
+</body>
+</html>

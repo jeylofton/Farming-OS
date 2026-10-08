@@ -1,0 +1,16 @@
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="btn-group"><a class="btn btn-outline-secondary" href="/admin/calendar?m=<%= prev %>" aria-label="Previous month"><i class="bi bi-chevron-left"></i></a><a class="btn btn-outline-secondary" href="/admin/calendar?m=<%= thisMonth %>">Today</a><a class="btn btn-outline-secondary" href="/admin/calendar?m=<%= next %>" aria-label="Next month"><i class="bi bi-chevron-right"></i></a></div>
+  <h2 class="h5 mb-0"><%= title %></h2>
+  <div class="small d-none d-md-block"><span class="cal-dot ev-task"></span> Task <span class="cal-dot ev-sow ms-2"></span> Sow/transplant <span class="cal-dot ev-harvest ms-2"></span> Harvest <span class="cal-dot ev-class ms-2"></span> Class <span class="cal-dot ev-maintenance ms-2"></span> Maintenance</div>
+</div>
+<div class="card d-none d-md-block"><div class="cal-grid">
+  <% ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => { %><div class="cal-head"><%= d %></div><% }) %>
+  <% weeks.forEach(w => w.forEach(day => { %><div class="cal-day <%= day.inMonth ? '' : 'out' %> <%= day.isToday ? 'today' : '' %>"><div class="cal-num"><%= day.day %></div>
+    <% day.events.slice(0, 4).forEach(e => { %><a class="cal-ev ev-<%= e.type === 'transplant' ? 'sow' : e.type %> <%= e.done ? 'done' : '' %>" href="<%= e.href %>" title="<%= e.label %>"><%= e.time ? e.time + ' ' : '' %><%= e.label %></a><% }) %>
+    <% if (day.events.length > 4) { %><div class="small text-muted">+<%= day.events.length - 4 %> more</div><% } %></div><% })) %>
+</div></div>
+<div class="d-md-none">
+  <% if (!agenda.length) { %><div class="card card-body text-muted">Nothing scheduled this month.</div><% } %>
+  <% agenda.forEach(day => { %><div class="card mb-2"><div class="card-header py-2 <%= day.isToday ? 'bg-success text-white' : '' %>"><%= f.date(day.key) %></div><ul class="list-group list-group-flush">
+    <% day.events.forEach(e => { %><li class="list-group-item"><a class="text-decoration-none <%= e.done ? 'text-muted text-decoration-line-through' : '' %>" href="<%= e.href %>"><span class="cal-dot ev-<%= e.type === 'transplant' ? 'sow' : e.type %> me-1"></span><%= e.time ? e.time + ' ' : '' %><%= e.label %></a></li><% }) %></ul></div><% }) %>
+</div>

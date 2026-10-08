@@ -1,0 +1,32 @@
+<% const o = old || {}; %>
+<form method="post" action="/admin/orders" class="row g-3" id="orderForm" data-tax="<%= taxRate %>" novalidate>
+  <div class="col-lg-8"><div class="card mb-3"><div class="card-header fw-semibold">Customer</div><div class="card-body"><div class="row g-2">
+    <div class="col-12"><label class="form-label" for="customer_id">Existing customer</label><select class="form-select" id="customer_id" name="customer_id"><option value="">– or add a new customer below –</option>
+      <% customers.forEach(c => { %><option value="<%= c.id %>" <%= String(o.customer_id || preCustomer) === String(c.id) ? 'selected' : '' %>><%= c.label %></option><% }) %></select></div>
+    <div class="col-md-4"><input class="form-control" name="new_name" placeholder="New customer name" aria-label="New customer name" value="<%= o.new_name || '' %>"></div>
+    <div class="col-md-4"><input class="form-control" name="new_phone" placeholder="Phone" aria-label="Phone" value="<%= o.new_phone || '' %>"></div>
+    <div class="col-md-4"><input class="form-control" type="email" name="new_email" placeholder="Email" aria-label="Email" value="<%= o.new_email || '' %>"></div>
+  </div></div></div>
+  <div class="card"><div class="card-header d-flex justify-content-between align-items-center"><span class="fw-semibold">Produce</span><button type="button" class="btn btn-sm btn-outline-primary" id="addRow"><i class="bi bi-plus-lg"></i> Add line</button></div>
+    <div class="card-body">
+      <% if (!lots.length) { %><div class="alert alert-warning mb-0">There is no produce in stock. <a href="/admin/harvests/new">Record a harvest</a> first.</div><% } else { %>
+      <div id="rows"></div>
+      <template id="rowTpl"><div class="item-row row g-2 align-items-end">
+        <div class="col-12 col-md-5"><label class="form-label small mb-0">Produce lot</label><select class="form-select form-select-sm lot" name="item_lot"><option value="">Choose…</option>
+          <% lots.forEach(l => { %><option value="<%= l.id %>" data-price="<%= l.unit_price %>" data-max="<%= l.quantity_available %>" data-unit="<%= l.unit %>"><%= l.crop_name %><%= l.variety ? ' – ' + l.variety : '' %> (<%= f.qty(l.quantity_available) %> <%= l.unit %> left, <%= l.lot_code %>)</option><% }) %></select></div>
+        <div class="col-4 col-md-2"><label class="form-label small mb-0">Qty <span class="unit text-muted"></span></label><input class="form-control form-control-sm qty" type="number" name="item_qty" step="any" min="0.01"></div>
+        <div class="col-4 col-md-2"><label class="form-label small mb-0">Price</label><input class="form-control form-control-sm price" type="number" name="item_price" step="0.01" min="0"></div>
+        <div class="col-3 col-md-2 text-end fw-semibold line-total">$0.00</div>
+        <div class="col-1 text-end"><button type="button" class="btn btn-sm btn-outline-danger rm" aria-label="Remove line"><i class="bi bi-x-lg"></i></button></div>
+      </div></template>
+      <% } %>
+    </div></div></div>
+  <div class="col-lg-4"><div class="card sticky-top" style="top:72px"><div class="card-body">
+    <div class="mb-2"><label class="form-label" for="fulfillment">Fulfillment</label><select class="form-select" id="fulfillment" name="fulfillment"><option value="pickup">Farm pickup</option><option value="delivery" <%= o.fulfillment === 'delivery' ? 'selected' : '' %>>Delivery</option></select></div>
+    <div class="mb-2"><label class="form-label" for="requested_date">Requested date</label><input class="form-control" type="date" id="requested_date" name="requested_date" min="<%= f.today() %>" value="<%= o.requested_date || '' %>"></div>
+    <div class="mb-3"><label class="form-label" for="notes">Notes</label><textarea class="form-control" id="notes" name="notes" rows="2"><%= o.notes || '' %></textarea></div>
+    <dl class="row mb-3"><dt class="col-6">Subtotal</dt><dd class="col-6 text-end" id="subtotal">$0.00</dd><dt class="col-6">Tax (<%= taxRate %>%)</dt><dd class="col-6 text-end" id="tax">$0.00</dd><dt class="col-6">Total</dt><dd class="col-6 text-end fw-bold" id="total">$0.00</dd></dl>
+    <button class="btn btn-primary w-100" <%= lots.length ? '' : 'disabled' %>>Create order</button>
+    <div class="form-text">Stock is reserved when the order is created. Online payment is not available in Stage 1; record payments afterwards.</div>
+  </div></div></div>
+</form>

@@ -1,0 +1,20 @@
+<%# One table cell for a registry column. Params: def, col, row %>
+<% const v = row[col.key]; const type = col.type || 'text'; %>
+<td class="<%= col.cls || '' %>">
+<% if (col.link) { %><a class="fw-semibold text-decoration-none break-any" href="/admin/<%= def.path %>/<%= row.id %><%= def.extras ? '' : '/edit' %>"><%= type === 'date' ? f.date(v) : type === 'datetime' ? f.dateTime(v) : (v == null || v === '' ? '(untitled)' : v) %></a>
+<% } else if (type === 'money') { %><%= f.money(v) %>
+<% } else if (type === 'qty') { %><%= v == null ? '-' : f.qty(v) %>
+<% } else if (type === 'qtyunit') { %><%= f.qty(v) %> <%= row.unit || '' %>
+<% } else if (type === 'number') { %><%= v == null ? '-' : v %>
+<% } else if (type === 'date') { %><%= f.date(v) %>
+<% } else if (type === 'datetime') { %><%= f.dateTime(v) %>
+<% } else if (type === 'chip') { %><%- badge(col.chip, v) %>
+<% } else if (type === 'flag') { %><%- badge('flag', v ? 1 : 0) %>
+<% } else if (type === 'crop') { %><%= v %><% if (row.crop_variety) { %> <span class="text-muted">– <%= row.crop_variety %></span><% } %>
+<% } else if (type === 'yield') { %><%= f.qty(v) %> / <%= row.expected_yield == null ? '?' : f.qty(row.expected_yield) %> <small class="text-muted"><%= row.yield_unit %></small>
+<% } else if (type === 'seats') { %><%= v %>/<%= row.capacity %><% if (row.waiting) { %> <span class="badge text-bg-warning">+<%= row.waiting %> waiting</span><% } else if (v >= row.capacity && row.status === 'scheduled') { %> <span class="badge text-bg-danger">Full</span><% } %>
+<% } else if (type === 'low') { %><% if (v) { %><span class="badge text-bg-danger">Reorder</span><% } else { %><span class="badge text-bg-success">OK</span><% } %>
+<% } else if (type === 'due') { %><% const late = v && v < f.today() && !row.done; %><span class="<%= late ? 'text-danger fw-semibold' : '' %>"><%= f.date(v) %><% if (late) { %> <i class="bi bi-exclamation-circle" title="Overdue"></i><% } %></span>
+<% } else if (type === 'taskcheck') { %><form method="post" action="/admin/tasks/<%= row.id %>/toggle" class="m-0"><input type="hidden" name="back" value="<%= currentUrl %>"><button class="btn btn-sm p-0 border-0 task-check" aria-label="<%= row.done ? 'Reopen task' : 'Mark task done' %>"><i class="bi bi-<%= row.done ? 'check-circle-fill text-success' : 'circle' %> fs-5"></i></button></form>
+<% } else { %><%= v == null || v === '' ? '-' : v %><% } %>
+</td>

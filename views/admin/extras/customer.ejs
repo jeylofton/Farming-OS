@@ -1,0 +1,4 @@
+<div class="card"><div class="card-header fw-semibold">Order history</div>
+<% if (!extra.orders.length) { %><div class="card-body text-muted">No orders yet.</div><% } else { %>
+<div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Order</th><th>Date</th><th>Status</th><th>Payment</th><th class="text-end">Total</th></tr></thead><tbody>
+<% extra.orders.forEach(o => { %><tr><td><a href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td><td><%= f.date(o.order_date) %></td><td><%- badge('order', o.status) %></td><td><%- badge('payment', o.payment_status) %></td><td class="text-end"><%= f.money(o.total) %></td></tr><% }) %></tbody></table></div><% } %></div>

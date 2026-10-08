@@ -1,0 +1,12 @@
+<% const fld = (k, label, rows, help) => `<div class="col-12"><label class="form-label" for="${k}">${label}</label>${rows === 1 ? `<input class="form-control" id="${k}" name="${k}" maxlength="2000" value="${f.esc(values[k])}">` : `<textarea class="form-control" id="${k}" name="${k}" rows="${rows}">${f.esc(values[k])}</textarea>`}${help ? `<div class="form-text">${help}</div>` : ''}</div>`; %>
+<form method="post" action="/admin/content" class="card card-body form-card"><div class="row g-3">
+  <%- fld('announcement', 'Announcement banner (leave blank for none)', 1) %>
+  <%- fld('home_headline', 'Home headline', 1) %>
+  <%- fld('home_intro', 'Home introduction', 3) %>
+  <%- fld('about_story', 'Farm story', 4) %>
+  <%- fld('about_methods', 'Growing methods', 3) %>
+  <%- fld('about_instructor', 'Instructor background', 3) %>
+  <%- fld('visit_policies', 'Visit policies', 3) %>
+  <%- fld('faq_text', 'FAQ', 6, 'One question per line, written as <code>Question|Answer</code>.') %>
+  <div class="col-12"><button class="btn btn-primary">Save content</button> <span class="text-muted small ms-2">Crops, classes and produce cards on the site come from the admin modules, not from this page.</span></div>
+</div></form>

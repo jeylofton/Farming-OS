@@ -1,0 +1,13 @@
+<form class="row g-2 mb-3" method="get" action="/admin/enrollments">
+  <div class="col-12 col-md"><div class="input-group"><input class="form-control" name="q" value="<%= q %>" placeholder="Search registration number, name or email" aria-label="Search"><button class="btn btn-primary"><i class="bi bi-search"></i><span class="visually-hidden">Search</span></button></div></div>
+  <div class="col-6 col-md-auto"><select class="form-select" name="status" data-autosubmit aria-label="Status"><option value="">All statuses</option><% ['registered', 'waitlisted', 'completed', 'cancelled'].forEach(s => { %><option value="<%= s %>" <%= status === s ? 'selected' : '' %>><%= s[0].toUpperCase() + s.slice(1) %></option><% }) %></select></div>
+  <div class="col-6 col-md-auto"><select class="form-select" name="session" data-autosubmit aria-label="Class"><option value="">All classes</option><% sessions.forEach(s => { %><option value="<%= s.id %>" <%= String(session) === String(s.id) ? 'selected' : '' %>><%= s.label %></option><% }) %></select></div>
+</form>
+<p class="small text-muted">To register a student, open a class from <a href="/admin/classes">Classes & Workshops</a>. Seats are checked on the server, so a class can never be oversold.</p>
+<div class="card"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead><tr><th>Registration</th><th>Student</th><th class="d-none d-md-table-cell">Class</th><th>Status</th><th class="d-none d-md-table-cell">Payment</th></tr></thead><tbody>
+  <% if (!rows.length) { %><tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-journal-check fs-2 d-block mb-2"></i>No registrations found.</td></tr><% } %>
+  <% rows.forEach(e => { %><tr><td class="fw-semibold"><%= e.reg_number %></td><td class="break-any"><a href="/admin/students/<%= e.student_id %>"><%= e.student_name %></a><br><small class="text-muted"><%= e.student_email || '' %></small></td>
+    <td class="d-none d-md-table-cell"><a href="/admin/classes/<%= e.session_id %>"><%= e.course_title %></a><br><small class="text-muted"><%= f.dateTime(e.starts_at) %></small></td>
+    <td><%- badge('enrollment', e.status) %> <%- e.attendance ? badge('attendance', e.attendance) : '' %></td><td class="d-none d-md-table-cell"><%- badge('payment', e.payment_status) %></td></tr><% }) %></tbody></table></div>
+  <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2"><small class="text-muted"><%= total %> registration<%= total === 1 ? '' : 's' %></small><%- include('../../partials/pagination', { pages, page, query, base: '/admin/enrollments' }) %></div></div>

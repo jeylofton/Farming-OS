@@ -1,0 +1,12 @@
+<div class="container py-4">
+  <h1 class="h2">Classes & Workshops</h1>
+  <p class="text-muted">Hands-on classes that teach you to grow your own produce.</p>
+  <% if (!courses.length) { %><div class="card card-body text-muted">No classes are published yet.</div><% } %>
+  <div class="row g-3"><% courses.forEach(c => { %><div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between gap-2"><h2 class="h5"><a class="text-decoration-none" href="/classes/<%= c.slug %>"><%= c.title %></a></h2><span class="badge text-bg-light border align-self-start"><%= c.difficulty %></span></div>
+    <p class="small text-muted break-any"><%= c.overview %></p>
+    <div class="small mb-2"><%= c.duration_hours ? c.duration_hours + ' hours · ' : '' %><%= c.default_price > 0 ? f.money(c.default_price) : 'Free' %><%= c.instructor ? ' · with ' + c.instructor : '' %></div>
+    <% if (!c.sessions.length) { %><div class="text-muted small">No upcoming dates yet.</div><% } %>
+    <ul class="list-unstyled mb-0 small"><% c.sessions.slice(0, 3).forEach(s => { const left = s.capacity - s.enrolled; %><li class="d-flex justify-content-between"><span><%= f.dateTime(s.starts_at) %></span><span class="<%= left > 0 ? 'text-success' : 'text-danger' %>"><%= left > 0 ? left + ' left' : (s.waitlist ? 'Waitlist' : 'Full') %></span></li><% }) %></ul>
+  </div><div class="card-footer bg-white"><a class="btn btn-sm btn-primary" href="/classes/<%= c.slug %>">Details & registration</a></div></div></div><% }) %></div>
+</div>

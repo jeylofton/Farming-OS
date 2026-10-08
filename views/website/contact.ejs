@@ -1,0 +1,17 @@
+<div class="container py-4"><div class="row g-4">
+  <div class="col-lg-6"><h1 class="h2">Contact & Visit</h1>
+    <p class="mb-1"><i class="bi bi-geo-alt me-1"></i><%= business.address %></p><p class="mb-1"><i class="bi bi-telephone me-1"></i><%= business.phone %></p><p class="mb-3 break-any"><i class="bi bi-envelope me-1"></i><%= business.email %></p>
+    <h2 class="h6">Hours</h2><p class="pre-line"><%= business.hours_text %></p>
+    <h2 class="h6">Visit policies</h2><p class="pre-line break-any"><%= content.visit_policies %></p>
+    <% if (faqs.length) { %><h2 class="h6 mt-4">FAQ</h2><div class="accordion" id="faq"><% faqs.forEach((q, i) => { %><div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q<%= i %>"><%= q[0] %></button></h3><div id="q<%= i %>" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body"><%= q[1] %></div></div></div><% }) %></div><% } %>
+  </div>
+  <div class="col-lg-6"><% if (features.publicInquiries) { %><div class="card"><div class="card-body"><h2 class="h5">Send us a message</h2>
+    <form method="post" action="/contact" class="row g-2">
+      <div class="col-12"><label class="form-label" for="name">Name *</label><input class="form-control" id="name" name="name" required maxlength="100" value="<%= old.name || '' %>"></div>
+      <div class="col-md-6"><label class="form-label" for="email">Email</label><input class="form-control" type="email" id="email" name="email" value="<%= old.email || '' %>"></div>
+      <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" value="<%= old.phone || '' %>"></div>
+      <div class="col-12"><label class="form-label" for="message">Message *</label><textarea class="form-control" id="message" name="message" rows="4" required maxlength="2000"><%= old.message || '' %></textarea></div>
+      <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div class="col-12"><button class="btn btn-primary">Send message</button><div class="form-text">Please give an email or phone number so we can reply.</div></div>
+    </form></div></div><% } %></div>
+</div></div>

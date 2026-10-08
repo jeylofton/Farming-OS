@@ -1,0 +1,7 @@
+<div class="card mb-3"><div class="card-header fw-semibold">Planting batches</div>
+<% if (!extra.batches.length) { %><div class="card-body text-muted">No batches of this crop yet.</div><% } else { %>
+<div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Batch</th><th>Where</th><th>Stage</th><th>Harvest from</th></tr></thead><tbody>
+<% extra.batches.forEach(b => { %><tr><td><a href="/admin/plantings/<%= b.id %>"><%= b.batch_code %></a></td><td><%= b.plot_name || '-' %></td><td><%- badge('stage', b.stage) %></td><td><%= f.date(b.harvest_start) %></td></tr><% }) %></tbody></table></div><% } %></div>
+<div class="card"><div class="card-header fw-semibold">In stock</div>
+<% if (!extra.lots.length) { %><div class="card-body text-muted">Nothing in stock.</div><% } else { %>
+<ul class="list-group list-group-flush"><% extra.lots.forEach(l => { %><li class="list-group-item d-flex justify-content-between"><a href="/admin/inventory/<%= l.id %>"><%= l.lot_code %></a><span><%= f.qty(l.quantity_available) %> <%= l.unit %></span></li><% }) %></ul><% } %></div>

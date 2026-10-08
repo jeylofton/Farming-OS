@@ -1,0 +1,4 @@
+<div class="card"><div class="card-header fw-semibold">Planting history</div>
+<% if (!extra.batches.length) { %><div class="card-body text-muted">Nothing has been planted here yet.</div><% } else { %>
+<div class="table-responsive"><table class="table table-sm mb-0 align-middle"><thead><tr><th>Batch</th><th>Crop</th><th>Sown</th><th>Stage</th></tr></thead><tbody>
+<% extra.batches.forEach(b => { %><tr><td><a href="/admin/plantings/<%= b.id %>"><%= b.batch_code %></a></td><td><%= b.crop_name %></td><td><%= f.date(b.sow_date) %></td><td><%- badge('stage', b.stage) %></td></tr><% }) %></tbody></table></div><% } %></div>
