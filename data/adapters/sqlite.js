@@ -1,9 +1,62 @@
 // Stage 1 database adapter. Stage 2 adds adapters/postgres.js behind the same repositories.
-const Database = require('better-sqlite3');
+//
+// Uses node-sqlite3-wasm (pure JavaScript/WebAssembly) so `npm install` never has to compile anything on the
+// host. A native driver (better-sqlite3) can fail to build on shared hosting and the app then never starts (503).
+// The small wrapper below keeps a better-sqlite3-style API: prepare().run/get/all(...params), transaction(), pragma().
+const fs = require('fs');
+const { Database } = require('node-sqlite3-wasm');
 const config = require('../../config');
 
-const db = new Database(config.dbPath);
-db.pragma('journal_mode = WAL');
+// This driver locks the file with a "<db>.lock" folder. A host that kills the app instead of stopping it cleanly
+// leaves that folder behind, and every later start would fail with "database is locked". The app is a single
+// process, so a lock found at startup is always stale: clear it. Do not run two copies on the same database file.
+fs.rmSync(`${config.dbPath}.lock`, { recursive: true, force: true });
+const raw = new Database(config.dbPath);
+const release = () => { try { raw.close(); } catch (e) { /* already closed */ } };
+process.on('exit', release);
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { release(); process.exit(0); });
+
+// The driver reports constraint failures by message only; give them the codes the repositories check.
+function withCode(e) {
+  const m = String((e && e.message) || '');
+  if (/UNIQUE constraint failed/.test(m)) e.code = 'SQLITE_CONSTRAINT_UNIQUE';
+  else if (/FOREIGN KEY constraint failed/.test(m)) e.code = 'SQLITE_CONSTRAINT_FOREIGNKEY';
+  else if (/constraint failed/.test(m)) e.code = 'SQLITE_CONSTRAINT';
+  return e;
+}
+const guard = (fn) => { try { return fn(); } catch (e) { throw withCode(e); } };
+
+const cache = new Map(); // prepared statements are reused, never leaked
+function prepare(sql) {
+  let st = cache.get(sql);
+  if (!st) { st = raw.prepare(sql); cache.set(sql, st); }
+  return {
+    run: (...p) => guard(() => st.run(p)),
+    get: (...p) => guard(() => st.get(p)) || undefined,
+    all: (...p) => guard(() => st.all(p)),
+  };
+}
+
+let depth = 0; // nested transactions become savepoints, like better-sqlite3
+function transaction(fn) {
+  return (...args) => {
+    const name = `sp${depth}`;
+    raw.exec(depth === 0 ? 'BEGIN' : `SAVEPOINT ${name}`);
+    depth += 1;
+    try {
+      const out = fn(...args);
+      depth -= 1;
+      raw.exec(depth === 0 ? 'COMMIT' : `RELEASE ${name}`);
+      return out;
+    } catch (e) {
+      depth -= 1;
+      raw.exec(depth === 0 ? 'ROLLBACK' : `ROLLBACK TO ${name}; RELEASE ${name}`);
+      throw e;
+    }
+  };
+}
+
+const db = { prepare, transaction, exec: (sql) => guard(() => raw.exec(sql)), pragma: (p) => raw.exec(`PRAGMA ${p}`) };
 db.pragma('foreign_keys = ON');
 
 // CREATE IF NOT EXISTS only: an existing persistent demo database is never overwritten.

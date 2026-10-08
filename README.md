@@ -5,7 +5,7 @@ Reusable vertical template for a vegetable farm that also teaches growing classe
 lineage (same stack as `dry-cleaning-business-os`; the dry-cleaning and Next.js master projects are untouched).
 
 **Stack:** HTML5 → Bootstrap 5 / Flexbox / Grid → vanilla JS → EJS (one admin layout, one public layout, partials)
-→ Node + Express → routes → controllers → services → repositories → SQLite adapter. No React or Next.js.
+→ Node + Express → routes → controllers → services → repositories → SQLite adapter (node-sqlite3-wasm). No React or Next.js.
 
 ## Run it
 

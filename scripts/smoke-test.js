@@ -7,6 +7,7 @@ const path = require('path');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'farm-os-'));
 process.env.DEMO_DB_PATH = path.join(tmp, 'test.db');
 process.env.UPLOAD_PATH = path.join(tmp, 'uploads');
+process.env.NO_LISTEN = '1';
 process.env.DEMO_USER = 'admin';
 process.env.DEMO_PASS = 'demo1234';
 

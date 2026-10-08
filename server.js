@@ -33,7 +33,7 @@ app.use('/admin', mw.requireAuth, require('./routes/admin'));
 app.use(mw.notFound);
 app.use(mw.errorHandler);
 
-if (require.main === module) {
-  app.listen(config.port, () => console.log(`Farm Business OS demo running on port ${config.port}`));
-}
+// Always listen: Hostinger loads this file with require(), so a require.main check would leave the app dead (503).
+// Only the smoke test sets NO_LISTEN so it can pick its own port.
+if (!process.env.NO_LISTEN) app.listen(config.port, () => console.log(`Farm Business OS demo running on port ${config.port}`));
 module.exports = app;
